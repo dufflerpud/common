@@ -1,0 +1,53 @@
+body		{
+		font-family: Arial, Helvetica, sans-serif;
+		cursor:default;
+		margin-left: 0px;
+		margin-top: 0px;
+		margin-right: 0px;
+		margin-bottom: 0px;
+		Qbackground-color: #6090b0;
+		Qcolor: white;
+		}
+
+@media (max-width:1000px) {
+	body		{ font-size: 45px; }
+	.helpfoot	{ font-size: 50px; }
+}
+
+@media print {
+    body	{
+    		color: black;
+		background-color: white;
+    }
+    tbody	{
+		color: #204080;
+		background-color: white;
+		}
+    }
+
+@media not print {
+    body	{
+    		background-color: #70a0c0;
+		color: white;
+		}
+    tbody	{
+		background-color: #D0F0FF;
+		color: #204080;
+		}
+    }
+
+A:link		{ color: #af2020; text-decoration: underline;	}
+A:active	{ color: #20af20; text-decoration: underline;	}
+A:visited	{ color: #2020af; text-decoration: underline;	}
+A:hover		{ color: #ffa0a0; text-decoration: blink;	}
+
+.field_format	{
+		text-indent:		50px;
+		font-family:		monospace;
+		Qbackground-color:	#D0F0FF;
+		color:			#000000;
+		}
+
+.helpfoot	{
+		background-color:	lightblue;
+		}
