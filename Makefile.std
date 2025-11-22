@@ -62,10 +62,14 @@ ifneq (,$(wildcard $(SRCDIR)/app.cgi))
 	    ifneq (,$(wildcard /var/www/www$(OFFSET)))
 	        SYSTEMWWW=/var/www/www$(OFFSET)/$(PROJECT)
 	    else
-	        ifneq (,$(wildcard /home/$(USER)/public_html/*))
-		    SYSTEMWWW=/home/$(USER)/public_html/$(PROJECT)
+		ifneq (,$(wildcard /var/www/html$(OFFSET)))
+		    SYSTEMWWW=/var/www/html$(OFFSET)/$(PROJECT)
 		else
-		    SYSTEMWWW=$(PROJECTDIR)/html
+		    ifneq (,$(wildcard /home/$(USER)/public_html/*))
+			SYSTEMWWW=/home/$(USER)/public_html/$(PROJECT)
+		    else
+			SYSTEMWWW=$(PROJECTDIR)/html
+		    endif
 		endif
 	    endif
 	endif
