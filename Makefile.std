@@ -1,0 +1,428 @@
+#@HDR@	$Id$
+#@HDR@		Copyright 2024 by
+#@HDR@		Christopher Caldwell/Brightsands
+#@HDR@		P.O. Box 401, Bailey Island, ME 04003
+#@HDR@		All Rights Reserved
+#@HDR@
+#@HDR@	This software comprises unpublished confidential information
+#@HDR@	of Brightsands and may not be used, copied or made available
+#@HDR@	to anyone, except in accordance with the license under which
+#@HDR@	it is furnished.
+DEBUG_OUT?=	:
+
+SED=		sed
+CWD?=		$(shell pwd)
+PROJECTSDIR?=	$(shell echo $(CWD) | $(SED) -e 's+/projects/.*+/projects+')
+PROJECT?=	$(shell echo $(CWD) | $(SED) -e 's+.*/projects/++' -e 's+/.*++')
+PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
+BUPDIR?=	$$HOME/bups/$(PROJECT)
+NOW?=		$(shell date +%Y-%m-%d:%H:%M)
+SHELL:=		/bin/sh
+PRODUCTION:=	www.brightsands.com
+OS:=		$(shell uname -s)
+MAKE:=		make
+
+ifneq (,$(wildcard /usr/bin/gcc))
+    GCC=gcc
+    CC=$(GCC)
+    BUILT_FOR?= $(shell $(GCC) -v 2>&1 | awk '/Target:/   { print $$2 }')
+    BUILT_BY?=	$(shell $(GCC) -v 2>&1 | grep 'version' | grep -v Configured | sed -e 's/.*version//' | awk '{ print "gcc"$$1 }' )
+else
+    BUILT_FOR=$(shell uname -r)-$(shell uname -s)-$(shell uname -m)
+    BUILT_FOR=$(shell $(CC) -v)		# Probably will not work
+endif
+
+INSTALL_DEFAULTS:=	-m 755
+ifeq (Darwin,$(OS))
+    INSTALL:=	install
+else
+    INSTALL:=	install -D
+endif
+
+BUILT_TOP_SYS?=	built
+BUILT_TOP_USER?=built
+BUILT_TOP_HOST?=built
+BUILT_TOP_ALL?=	built
+
+ifneq (,$(wildcard src/*))
+    SRCDIR=src
+else
+    SRCDIR=.
+endif
+
+SYSTEMBIN?=	/usr/local/bin
+SYSTEMLIB?=	/usr/local/lib
+
+ifneq (,$(wildcard $(SRCDIR)/app.cgi))
+    OFFSET=/sto
+    ifeq (,$(SYSTEMWWW))
+	ifneq (,$(wildcard /var/www/$(PROJECT)))
+	    SYSTEMWWW=/var/www/$(PROJECT)$(OFFSET)
+	else
+	    ifneq (,$(wildcard /var/www/www$(OFFSET)))
+	        SYSTEMWWW=/var/www/www$(OFFSET)/$(PROJECT)
+	    else
+	        ifneq (,$(wildcard /home/$(USER)/public_html/*))
+		    SYSTEMWWW=/home/$(USER)/public_html/$(PROJECT)
+		else
+		    SYSTEMWWW=$(PROJECTDIR)/html
+		endif
+	    endif
+	endif
+    endif
+
+    WWWDIR?=$(SYSTEMWWW)
+
+    PROGRAMCGI?=$(WWWDIR)/index.cgi
+    PROJECTPUBLIC?=$(PROJECTDIR)/public
+endif
+
+BUILT_SYS?=	$(BUILT_TOP_SYS)/$(BUILT_FOR)-$(BUILT_BY)
+BUILT_USER?=	$(BUILT_TOP_USER)/$(shell hostname).$(USER)
+BUILT_HOST?=	$(BUILT_TOP_HOST)/$(shell hostname)
+BUILT_ALL?=	$(BUILT_TOP_ALL)
+LINKS?=		bin obj results doc
+
+BINDIR?=	$(BUILT_SYS)/bin
+OBJDIR?=	$(BUILT_SYS)/obj
+RESDIR?=	$(BUILT_USER)/results
+DOCDIR?=	$(BUILT_ALL)/doc
+
+MAKEFLAGS+=	--no-print-directory
+DEFINES+=
+INCLUDE_DIRS?=	$(SRCDIR)
+INCLUDED_FILES?=$(foreach d,$(INCLUDEDIRS),$(wildcard $(d)/*.h))
+INCLUDE_FLAGS=	$(foreach d,$(INCLUDE_DIRS),-I$(d))
+CFLAGS+=	-g -ggdb $(DEFINES) $(INCLUDE_FLAGS)
+LDFLAGS+=
+
+#CC=		$(GCC)
+LN=		ln
+RM=		rm
+CP=		cp
+TAR=		tar
+RMDIR=		rmdir
+MKDIR=		mkdir
+CHOWN=		chown
+CHMOD=		chmod
+INSTALL=	install
+SUDO=		sudo
+
+PROGRAM?=	$(PROJECT)
+OBVIOUS_SRC=	$(wildcard \
+		    $(SRCDIR)/main.* \
+		    $(SRCDIR)/$(PROGRAM).c \
+		    $(SRCDIR)/$(PROGRAM).c++ \
+		    $(SRCDIR)/$(PROGRAM).pl \
+		    $(SRCDIR)/$(PROGRAM).py \
+		    $(SRCDIR)/$(PROGRAM).sh )
+
+ifneq (,$(OBVIOUS_SRC))
+PROGRAMS?=	$(PROGRAM)
+else
+PROGRAMS?=	$(notdir $(basename $(wildcard src/*)))
+endif
+
+BINS?=		$(foreach b,$(PROGRAMS),$(BINDIR)/$(b))
+
+DIRS=		$(filter-out common,$(subst /Makefile,,$(wildcard */Makefile)))
+
+#SED_MAP_DIRS=	$(SED) -e 's:%%PROJECTDIR%%:$(PROJECTDIR):g' -e 's:%%WWWDIR%%:$(WWWDIR):g'
+SED_MAP_DIRS=	$(SED) -e 's:my $$PROJECTDIR.*:my $$PROJECTDIR = "$(PROJECTDIR)";:' -e 's:%%PROJECTDIR%%:$(PROJECTDIR):g' -e 's:my $$WWWDIR.*:my $$WWWDIR = "$(WWWDIR)";:' -e 's:%%WWWDIR%%:$(WWWDIR):g'
+
+std_usage:
+		@echo "Standard make targets:"
+		@echo "	std_vars	Show standard Makefile variables"
+		@echo "	vars		Show $(PROJECT) variables"
+		@echo "	std_usage	Show standard Makefile usage"
+		@echo "	usage		Show $(PROJECT) usage"
+		@echo "	clean		Remove everything regenerateable"
+		@echo "	backup		Take a snapshot"
+		@echo "	bins		Build programs"
+		@echo "	test		Regression testing"
+		@echo "	again		Rebuild"
+		@echo "	scratch		Rebuild and test"
+
+std_vars:
+		@echo "Standard make variables:"
+		@echo "	USER			$(USER)"
+		@echo "	PROJECT			$(PROJECT)"
+		@echo "	NOW			$(NOW)"
+		@echo "	BLESSED_REASON		$(BLESSED_REASON)"
+		@echo "	BUPDIR			$(BUPDIR)"
+		@echo "	SHELL			$(SHELL)"
+		@echo "	BUILT_FOR		$(BUILT_FOR)"
+		@echo "	BUILT_BY		$(BUILT_BY)"
+		@echo "	BINDIR			$(BINDIR)"
+		@echo "	OBJDIR			$(OBJDIR)"
+		@echo "	RESDIR			$(RESDIR)"
+		@echo "	BUILT_TOP_SYS		$(BUILT_TOP_SYS)"
+		@echo "	BUILT_TOP_USER		$(BUILT_TOP_USER)"
+		@echo "	BUILT_SYS		$(BUILT_SYS)"
+		@echo "	BUILT_USER		$(BUILT_USER)"
+		@echo "	LINKS			$(LINKS)"
+		@echo "	CURSES			$(CURSES)"
+		@echo "	DEFINES			$(DEFINES)"
+		@echo "	INCLUDES		$(INCLUDES)"
+		@echo "	CFLAGS			$(CFLAGS)"
+		@echo "	LDFLAGS			$(LDFLAGS)"
+		@echo "	CC			$(CC)"
+		@echo "	GCC			$(GCC)"
+		@echo "	PROGRAM			$(PROGRAM)"
+		@echo "	OBVIOUS_SRC		$(OBVIOUS_SRC)"
+		@echo "	PROGRAMS		$(PROGRAMS)"
+		@echo "	BINS			$(BINS)"
+ifneq (,$(OFFSET))
+		@echo "	OFFSET			$(OFFSET)"
+		@echo "	SYSTEMBIN		$(SYSTEMBIN)"
+		@echo "	SYSTEMLIB		$(SYSTEMLIB)"
+		@echo "	SYSTEMWWW		$(SYSTEMWWW)"
+		@echo "	WWWDIR			$(WWWDIR)"
+		@echo "	PROGRAMCGI		$(PROGRAMCGI)"
+endif
+
+std_dirs:
+	@for d in $(DIRS) ; do \
+	    cd $$d; $(MAKE) $(FUNC); cd .. ; \
+	done
+
+std_clean:
+		$(RM) -rf $(BUILT_SYS) $(BUILT_USER) $(LINKS) core
+		$(RMDIR) $(BUILT_TOP_SYS) $(BUILT_TOP_USER) $(BUILT_TOP_HOST) $(BUILT_TOP_ALL) 2>/dev/null || true
+
+BLESSED_REASON=$(shell echo "$(REASON)" | $(SED) -e 's/[^A-Za-z0-9][^A-Za-z0-9]*/_/g')
+
+ifneq (,$(BLESSED_REASON))
+    ARCNAME=$(BUPDIR)/$(NOW).$(BLESSED_REASON).tbz2
+else
+    ARCNAME=$(BUPDIR)/$(NOW).tbz2
+endif
+std_backup:
+		$(MAKE) clean
+		@$(MKDIR) -p $(BUPDIR)
+ifneq (,$(wildcard app.db))
+		$(MAKE) app.po
+endif
+		$(TAR) cCf $(PROJECTSDIR) - $(PROJECT) | bzip2 -9 > $(ARCNAME)
+		$(CHMOD) 444 $(ARCNAME)
+		@[ -h bups ] || $(LN) -s $(BUPDIR) bups
+
+CHECKLIBS=/lib /usr/lib /usr/ccs/lib /usr/lib64 /usr/lib32
+libsearch = $(firstword $(wildcard $(addsuffix /lib$(1).*,$(CHECKLIBS))))
+
+ifneq ($(call libsearch,curses),)
+    CURSES=-lncurses
+else
+    ifneq ($(call libsearch,curses),)
+        CURSES=-lcurses
+    endif
+endif
+
+std_help:
+		@if grep "^usage:" Makefile >/dev/null ; then \
+		    $(MAKE) usage ; \
+		else 
+		    echo "" ; \
+		    echo "No usage supplied, using std_usage."; \
+		    $(MAKE) std_usage ; \
+		fi
+
+std_all:	std_bins std_links
+		@: Just a convenient way to build all dependencies
+
+std_bins:	$(BINS)
+		@: Just a convenient way to build all of $(BINS)
+
+std_uninstall:
+ifneq (,$(PROGRAMS))
+		cd $(SYSTEMBIN); $(RM) -f $(PROGRAMS) 2>/dev/null || $(SUDO) $(RM) -f $(PROGRAMS)
+endif
+ifneq (,$(WWWDIR))
+		$(RM) -rf $(WWWDIR) 2>/dev/null || $(SUDO) $(RM) -rf $(WWWDIR)
+endif
+
+std_install:
+		@make all
+ifneq (,$(PROGRAMS))
+		@set -x; $(foreach f,$(PROGRAMS), $(INSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) 2>/dev/null || $(SUDO) $(INSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) ;)
+endif
+ifneq (,$(WWWDIR))
+		[ ! -h $(WWWDIR) ] || $(RM) -f $(WWWDIR)
+		$(MKDIR) -p $(WWWDIR)
+		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
+ifneq (,$(wildcard public/*))
+		$(TAR) cCf public - . | $(TAR) xCf $(WWWDIR) -
+endif
+		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
+endif
+
+std_test:
+ifneq (,$(wildcard NOTEST))
+		cat NOTEST
+else
+		$(BINDIR)/$(PROGRAM)
+endif
+
+std_rebuild:
+		@echo "Cleaning project $(PROJECT):"
+		@$(MAKE) clean
+		@echo ""
+		@echo "Building project $(PROJECT):"
+		@$(MAKE) bins
+
+std_again:	std_rebuild
+
+std_scratch:	rebuild
+		@echo ""
+		@echo "Testing project $(PROJECT):"
+		@$(MAKE) test
+
+#########################################################################
+#	VERY simple rules (often overriden) for building things.	#
+#########################################################################
+$(BINDIR)/%:	$(SRCDIR)/%.pl $(BINDIR)/.must_exist
+		@$(DEBUG_OUT) "Standard .pl to bin rule:"
+		$(SED_MAP_DIRS) < $< > $@
+		$(CHMOD) 755 $@
+
+$(BINDIR)/%:	$(SRCDIR)/%.py $(BINDIR)/.must_exist
+		@$(DEBUG_OUT) "Standard .py to bin rule:"
+		$(SED_MAP_DIRS) < $< > $@
+		$(CHMOD) 755 $@
+
+$(BINDIR)/%:	$(SRCDIR)/%.sh $(BINDIR)/.must_exist
+		@$(DEBUG_OUT) "Standard shell to bin rule:"
+		$(SED_MAP_DIRS) < $< > $@
+		$(CHMOD) 755 $@
+
+$(OBJDIR)/%.o:	$(SRCDIR)/%.c $(OBJDIR)/.must_exist
+		@$(DEBUG_OUT) "Standard .c to .o rule:"
+		$(CC) $(CFLAGS) -c $< -o $@
+
+$(OBJDIR)/%.o:	$(SRCDIR)/%.c++ $(OBJDIR)/.must_exist
+		@$(DEBUG_OUT) "Standard .c++ to .o rule:"
+		$(CC) $(CFLAGS) -c $< -o $@
+
+$(BINDIR)/%:	$(OBJDIR)/%.o $(BINDIR)/.must_exist
+		@$(DEBUG_OUT) "Standard .o to bin rule:"
+		$(CC) $(LDFLAGS) $< -o $@
+
+#$(BINDIR)/%:	$(SRCDIR)/%.c $(BINDIR)/.must_exist
+#		@$(DEBUG_OUT) "Standard .c to bin rule:"
+#		$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+
+%/.must_exist:
+		$(MKDIR) -p $(dir $@)
+		@touch $@
+
+$(OBJDIR):
+ifeq (obj,$(OBJDIR))
+		[ ! -h obj ] || $(RM) -f obj
+		$(MKDIR) -p $(OBJDIR)
+else
+		$(MKDIR) -p $(OBJDIR)
+		$(RM) -rf obj
+		$(LN) -s $(OBJDIR) obj
+endif
+
+$(DOCDIR):
+ifeq (doc,$(DOCDIR))
+		[ ! -h doc ] || $(RM) -f doc
+		$(MKDIR) -p $(DOCDIR)
+else
+		$(MKDIR) -p $(DOCDIR)
+		$(RM) -rf doc
+		$(LN) -s $(DOCDIR) doc
+endif
+
+$(BINDIR):
+ifeq (bin,$(BINDIR))
+		[ ! -h bin ] || $(RM) -f bin
+		$(MKDIR) -p $(BINDIR)
+else
+		$(MKDIR) -p $(BINDIR)
+		$(RM) -rf bin
+		$(LN) -s $(BINDIR) bin
+endif
+
+$(RESDIR):
+ifeq (results,$(RESDIR))
+		[ ! -h results ] || $(RM) -f results
+		$(MKDIR) -p $(RESDIR)
+else
+		$(MKDIR) -p $(RESDIR)
+		$(RM) -rf results
+		$(LN) -s $(RESDIR) results
+endif
+
+%.po:		common/%.db	;	copydb $< $@
+%.po:		%.db		;	copydb $< $@
+
+#########################################################################
+#	Targets for handling CGI software.				#
+#########################################################################
+populate:
+		scp $(REMOTEARC) $(HOMEARC)
+		$(TAR) xjf $(HOMEARC) --directory=$$HOME
+
+std_links:
+ifneq (bin,$(BINDIR))
+		@[ ! -h bin ] || $(RM) -f bin
+		@[ -d bin -o ! -e $(BINDIR) ] || $(LN) -s $(BINDIR) bin
+endif
+ifneq (obj,$(OBJDIR))
+		@[ ! -h obj ] || $(RM) -f obj
+		@[ -d obj -o ! -e $(OBJDIR) ] || $(LN) -s $(OBJDIR) obj
+endif
+ifneq (doc,$(DOCDIR))
+		@[ ! -h doc ] || $(RM) -f doc
+		@[ -d doc -o ! -e $(DOCDIR) ] || $(LN) -s $(DOCDIR) doc
+endif
+ifneq (results,$(RESDIR))
+		@[ ! -h results ] || $(RM) -f results
+		@[ -d results -o ! -e $(RESDIR) ] || $(LN) -s $(RESDIR) results
+endif
+#ifneq (,$(WWWDIR))
+#		@$(RM) -f $(WWWDIR)/$(PROJECT) $(PROGRAMCGI)
+#		$(LN) -s $(PROJECTPUBLIC) $(WWWDIR)/$(PROJECT)
+#		$(LN) $(PROJECTDIR)/app.cgi $(PROGRAMCGI) # ln -s breaks suexec
+#endif
+
+std_chmods:
+		$(CHMOD) -R u+rw,go-rwx .
+ifneq (,$(wildcard $(BINDIR)))
+		find $(BINDIR) -type f -print | xargs $(CHMOD) 755
+endif
+		find . \( -type d -o -name '*.cgi' \) -print | xargs $(CHMOD) 755
+ifneq (,$(wildcard $(PROJECTPUBLIC)))
+		find $(PROJECTPUBLIC) -type d -print | xargs $(CHMOD) 755
+		find $(PROJECTPUBLIC) -type f -print | xargs $(CHMOD) 644
+endif
+		$(CHMOD) 711 .
+
+save_pos:	app.po translations.po accounts.po
+
+restore_pos:	
+		copydb app.db app.po
+		copydb accounts.db $(PROJECTSDIR)/common/accounts.po
+		copydb translations.db $(PROJECTSDIR)/common/translations.po
+
+backupdb:
+		copydb app.db $(BUPDIR)/$(NOW).po
+
+#########################################################################
+# Everything else goes to the usage message.				#
+#########################################################################
+std_%:
+		@echo ""
+ifneq (,$(ORIGINAL_TARGET))
+		@echo 'Makefile for $(PROJECT) project does not support "make $(ORIGINAL_TARGET)".'
+else
+		@echo 'Makefile for $(PROJECT) project does not support "make $@".'
+endif
+		@echo ""
+		@if grep -v grep Makefile | grep 'usage:' >/dev/null ; then \
+		    $(MAKE) usage; \
+		elif grep -v grep Makefile | grep 'Makefile.inc1' >/dev/null ; then \
+		    $(MAKE) std_usage; \
+		fi
