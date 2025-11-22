@@ -120,7 +120,7 @@ OBVIOUS_SRC=	$(wildcard \
 ifneq (,$(OBVIOUS_SRC))
 PROGRAMS?=	$(PROGRAM)
 else
-PROGRAMS?=	$(notdir $(basename $(wildcard src/*)))
+PROGRAMS?=	$(filter-out app,$(notdir $(basename $(wildcard src/*))))
 endif
 
 BINS?=		$(foreach b,$(PROGRAMS),$(BINDIR)/$(b))
