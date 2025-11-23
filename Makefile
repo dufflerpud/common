@@ -15,6 +15,9 @@ ACCOUNTSDB=$(PROJECTDIR)/db/accounts.db
 CPI_USER=$(PROJECTSDIR)/cpi/tests/cpi_user.pl
 
 install:
+		install -d -m 0777 -o root -g root ${PROJECTDIR}/SIDS
+		install -m 0666 -o ${WUSER} -g ${WGROUP} /dev/null /var/log/common.log
+		install -d -m 0777 -o root -g root /var/log/stderr
 		install -d -m 0777 $(dir $(ACCOUNTSDB))
 		[ -f $(ACCOUNTSDB) ] || \
 		    $(CPI_USER) \
