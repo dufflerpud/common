@@ -21,6 +21,10 @@ SHELL:=		/bin/sh
 PRODUCTION:=	www.brightsands.com
 OS:=		$(shell uname -s)
 MAKE:=		make
+WUSER:=		$(shell awk -F: '/^(apache|www-data)/ {print $$3}' /etc/passwd)
+WGROUP:=	$(shell awk -F: '/^(apache|www-data)/ {print $$4}' /etc/passwd)
+IUSER:=		$(shell id -u)
+IGROUP:=	$(shell id -g)
 
 ifneq (,$(wildcard /usr/bin/gcc))
     GCC=gcc
@@ -149,6 +153,7 @@ std_usage:
 
 std_vars:
 		@echo "Standard make variables:"
+		@echo " WUSER=$(WUSER) WGROUP=$(WGROUP) IUSER=$(IUSER) IGROUP=$(IGROUP)"
 		@echo "	USER			$(USER)"
 		@echo "	PROJECT			$(PROJECT)"
 		@echo "	NOW			$(NOW)"
