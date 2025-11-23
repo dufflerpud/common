@@ -20,6 +20,7 @@ NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL:=		/bin/sh
 PRODUCTION:=	www.brightsands.com
 OS:=		$(shell uname -s)
+GIT:=		git
 MAKE:=		make
 WUSER:=		$(shell awk -F: '/^(apache|www-data)/ {print $$3}' /etc/passwd)
 WGROUP:=	$(shell awk -F: '/^(apache|www-data)/ {print $$4}' /etc/passwd)
@@ -189,6 +190,10 @@ ifneq (,$(OFFSET))
 		@echo "	WWWDIR			$(WWWDIR)"
 		@echo "	PROGRAMCGI		$(PROGRAMCGI)"
 endif
+
+std_fresh:
+		$(GIT) pull
+		@$(MAKE) install
 
 std_dirs:
 	@for d in $(DIRS) ; do \
