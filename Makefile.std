@@ -15,17 +15,22 @@ CWD?=		$(shell pwd)
 PROJECTSDIR?=	$(shell echo $(CWD) | $(SED) -e 's+/projects/.*+/projects+')
 PROJECT?=	$(shell echo $(CWD) | $(SED) -e 's+.*/projects/++' -e 's+/.*++')
 PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
+PROJECTDBDIR?=	$(PROJECTDIR)/db
 BUPDIR?=	$$HOME/bups/$(PROJECT)
 NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL:=		/bin/sh
 PRODUCTION:=	www.brightsands.com
 OS:=		$(shell uname -s)
 GIT:=		git
+INSTALL:=	install
 MAKE:=		make
 WUSER:=		$(shell awk -F: '/^(apache|www-data)/ {print $$3}' /etc/passwd)
 WGROUP:=	$(shell awk -F: '/^(apache|www-data)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
+
+ACCOUNTSDB=	$(PROJECTSDIR)/common/accounts.db
+ACCOUNT_TOOL=	$(PROJECTSDIR)/cpi/tests/cpi_user.pl
 
 ifneq (,$(wildcard /usr/bin/gcc))
     GCC=gcc
@@ -264,10 +269,27 @@ ifneq (,$(WWWDIR))
 		[ ! -h $(WWWDIR) ] || $(RM) -f $(WWWDIR)
 		$(MKDIR) -p $(WWWDIR)
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
+		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
+		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		    -group can_run_$(PROJECT) -full "Can run $(PROJECT)"
+		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		    -group can_administer_$(PROJECT) -full "Can administer $(PROJECT)"
+		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		    -merge -user admin_$(PROJECT) -password "CHANGEME!" \
+		    -groups +can_run_$(PROJECT)+can_administer_$(PROJECT)
+		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		    -merge -user administrator \
+		    -groups +can_run_$(PROJECT)+can_administer_$(PROJECT)
+		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
+ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
+		@echo '$VAR1={};' > /tmp/stub.po
+		$(SRCDIR)/app.cgi copydb /tmp/stub.po $(PROJECTDBDIR)/app.db
+		$(CHMOD) 666 $(PROJECTDBDIR)/app.db
+		@$(RM) -f /tmp/stub.po
+endif
 ifneq (,$(wildcard public/*))
 		$(TAR) cCf public - . | $(TAR) xCf $(WWWDIR) -
 endif
-		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
 endif
 
 std_test:
