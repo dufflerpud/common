@@ -29,7 +29,7 @@ WGROUP:=	$(shell awk -F: '/^(apache|www-data)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
-ACCOUNTSDB=	$(PROJECTSDIR)/common/accounts.db
+ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 ACCOUNT_TOOL=	$(PROJECTSDIR)/cpi/tests/cpi_user.pl
 
 ifneq (,$(wildcard /usr/bin/gcc))
