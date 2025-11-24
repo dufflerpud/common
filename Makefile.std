@@ -283,8 +283,7 @@ ifneq (,$(WWWDIR))
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
 		@echo '$VAR1={};' > /tmp/stub.po
-		$(PROGRAMCGI) copydb /tmp/stub.po $(PROJECTDBDIR)/app.db
-		$(CHMOD) 666 $(PROJECTDBDIR)/app.db
+		$(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
 		@$(RM) -f /tmp/stub.po
 endif
 ifneq (,$(wildcard public/*))
