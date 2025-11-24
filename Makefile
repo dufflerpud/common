@@ -11,19 +11,16 @@
 PROJECTSDIR?=$(shell echo $(CURDIR) | sed -e 's+/projects/.*+/projects+')
 include $(PROJECTSDIR)/common/Makefile.std
 
-ACCOUNTSDB=$(PROJECTDIR)/db/accounts.db
-CPI_USER=$(PROJECTSDIR)/cpi/tests/cpi_user.pl
-
 install:
-		install -d -m 0777 -o root -g root ${PROJECTDIR}/SIDS
-		install -m 0666 -o ${WUSER} -g ${WGROUP} /dev/null /var/log/common.log
-		install -d -m 0777 -o root -g root /var/log/stderr
-		install -d -m 0777 $(dir $(ACCOUNTSDB))
+		$(INSTALL) -d -m 0777 -o root -g root ${PROJECTDIR}/SIDS
+		$(INSTALL) -m 0666 -o ${WUSER} -g ${WGROUP} /dev/null /var/log/common.log
+		$(INSTALL) -d -m 0777 -o root -g root /var/log/stderr
+		$(INSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
 		[ -f $(ACCOUNTSDB) ] || \
-		    $(CPI_USER) \
+		    $(ACCOUNT_TOOL) \
 			-database $(ACCOUNTSDB) \
 			-init -administrator administrator -password 'CHANGEME!'
-		chmod 666 $(ACCOUNTSDB)
+		$(CHMOD) 666 $(ACCOUNTSDB)
 
 %:
 		@echo "Invoking std_$@ rule:"
