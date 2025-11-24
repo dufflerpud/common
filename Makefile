@@ -20,7 +20,7 @@ install:
 		    $(ACCOUNT_TOOL) \
 			-database $(ACCOUNTSDB) \
 			-init -administrator administrator -password 'CHANGEME!'
-		$(CHMOD) 666 $(ACCOUNTSDB)
+		$(CHMOD) 0666 $(ACCOUNTSDB)
 
 %:
 		@echo "Invoking std_$@ rule:"
