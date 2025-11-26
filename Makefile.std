@@ -284,6 +284,7 @@ ifneq (,$(WWWDIR))
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
 		@echo '$VAR1={};' > /tmp/stub.po
 		$(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
+		$(CHMOD) 0666 $(PROJECTDBDIR)/app.db
 		@$(RM) -f /tmp/stub.po
 endif
 ifneq (,$(wildcard public/*))
