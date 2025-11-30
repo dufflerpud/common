@@ -14,12 +14,12 @@ SED=		sed
 CWD?=		$(shell pwd)
 PROJECTSDIR?=	$(shell echo $(CWD) | $(SED) -e 's+/projects/.*+/projects+')
 PROJECT?=	$(shell echo $(CWD) | $(SED) -e 's+.*/projects/++' -e 's+/.*++')
+PROJECTUC?=	$(shell PROJECT="$(PROJECT)"; echo $${PROJECT^})
 PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
 PROJECTDBDIR?=	$(PROJECTDIR)/db
 BUPDIR?=	$$HOME/bups/$(PROJECT)
 NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL:=		/bin/sh
-PRODUCTION:=	www.brightsands.com
 OS:=		$(shell uname -s)
 GIT:=		git
 INSTALL:=	install
@@ -162,7 +162,7 @@ std_vars:
 		@echo "Standard make variables:"
 		@echo " WUSER=$(WUSER) WGROUP=$(WGROUP) IUSER=$(IUSER) IGROUP=$(IGROUP)"
 		@echo "	USER			$(USER)"
-		@echo "	PROJECT			$(PROJECT)"
+		@echo "	PROJECT			$(PROJECT) or $(PROJECTUC)"
 		@echo "	NOW			$(NOW)"
 		@echo "	BLESSED_REASON		$(BLESSED_REASON)"
 		@echo "	BUPDIR			$(BUPDIR)"
