@@ -109,6 +109,7 @@ INCLUDED_FILES?=$(foreach d,$(INCLUDEDIRS),$(wildcard $(d)/*.h))
 INCLUDE_FLAGS=	$(foreach d,$(INCLUDE_DIRS),-I$(d))
 CFLAGS+=	-g -ggdb $(DEFINES) $(INCLUDE_FLAGS)
 LDFLAGS+=
+LDLIBS+=
 
 #CC=		$(GCC)
 LN=		ln
@@ -181,6 +182,7 @@ std_vars:
 		@echo "	INCLUDES		$(INCLUDES)"
 		@echo "	CFLAGS			$(CFLAGS)"
 		@echo "	LDFLAGS			$(LDFLAGS)"
+		@echo "	LDLIBS			$(LDLIBS)"
 		@echo "	CC			$(CC)"
 		@echo "	GCC			$(GCC)"
 		@echo "	PROGRAM			$(PROGRAM)"
@@ -341,11 +343,11 @@ $(OBJDIR)/%.o:	$(SRCDIR)/%.c++ $(OBJDIR)/.must_exist
 
 $(BINDIR)/%:	$(OBJDIR)/%.o $(BINDIR)/.must_exist
 		@$(DEBUG_OUT) "Standard .o to bin rule:"
-		$(CC) $(LDFLAGS) $< -o $@
+		$(CC) $(LDFLAGS) $< $(LDLIBS) -o $@
 
 #$(BINDIR)/%:	$(SRCDIR)/%.c $(BINDIR)/.must_exist
 #		@$(DEBUG_OUT) "Standard .c to bin rule:"
-#		$(CC) $(CFLAGS) $(LDFLAGS) $< -o $@
+#		$(CC) $(CFLAGS) $(LDFLAGS) $< $(LDLIBS) -o $@
 
 %/.must_exist:
 		$(MKDIR) -p $(dir $@)
