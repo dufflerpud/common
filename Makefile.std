@@ -274,15 +274,15 @@ ifneq (,$(WWWDIR))
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
 		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
-		    -group can_run_$(PROJECT) -full "Can run $(PROJECT)"
+		    -group $(PROJECT)_user -full "$(PROJECT) user"
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
-		    -group can_administer_$(PROJECT) -full "Can administer $(PROJECT)"
+		    -group $(PROJECT)_admin -full "$(PROJECT) administrator"
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
 		    -merge -user admin_$(PROJECT) -password "CHANGEME!" \
-		    -groups +can_run_$(PROJECT)+can_administer_$(PROJECT)
+		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
 		    -merge -user administrator \
-		    -groups +can_run_$(PROJECT)+can_administer_$(PROJECT)
+		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
 		@echo '$VAR1={};' > /tmp/stub.po
