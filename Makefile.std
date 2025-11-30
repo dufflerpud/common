@@ -186,13 +186,14 @@ std_vars:
 		@echo "	CC			$(CC)"
 		@echo "	GCC			$(GCC)"
 		@echo "	PROGRAM			$(PROGRAM)"
+		@echo "	SRCDIR			$(SRCDIR)"
 		@echo "	OBVIOUS_SRC		$(OBVIOUS_SRC)"
 		@echo "	PROGRAMS		$(PROGRAMS)"
 		@echo "	BINS			$(BINS)"
-ifneq (,$(OFFSET))
-		@echo "	OFFSET			$(OFFSET)"
 		@echo "	SYSTEMBIN		$(SYSTEMBIN)"
 		@echo "	SYSTEMLIB		$(SYSTEMLIB)"
+ifneq (,$(OFFSET))
+		@echo "	OFFSET			$(OFFSET)"
 		@echo "	SYSTEMWWW		$(SYSTEMWWW)"
 		@echo "	WWWDIR			$(WWWDIR)"
 		@echo "	PROGRAMCGI		$(PROGRAMCGI)"
