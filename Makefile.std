@@ -274,9 +274,9 @@ ifneq (,$(WWWDIR))
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
 		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
-		    -group $(PROJECT)_user -full "$(PROJECT) user"
+		    -group $(PROJECT)_user -full "$(PROJECTUC) user"
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
-		    -group $(PROJECT)_admin -full "$(PROJECT) administrator"
+		    -group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
 		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
 		    -merge -user admin_$(PROJECT) -password "CHANGEME!" \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
