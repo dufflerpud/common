@@ -14,7 +14,7 @@ SED=		sed
 CWD?=		$(shell pwd)
 PROJECTSDIR?=	$(shell echo $(CWD) | $(SED) -e 's+/projects/.*+/projects+')
 PROJECT?=	$(shell echo $(CWD) | $(SED) -e 's+.*/projects/++' -e 's+/.*++')
-PROJECTUC:=	$(shell PROJECT="$(PROJECT)"; echo $${PROJECT^})
+PROJECTUC=	$(shell echo $(PROJECT) | perl -e 'print ucfirst(<>)')
 PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
 PROJECTDBDIR?=	$(PROJECTDIR)/db
 BUPDIR?=	$$HOME/bups/$(PROJECT)
