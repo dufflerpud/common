@@ -17,11 +17,11 @@ install:
 		$(INSTALL) -m 0666 -o ${WUSER} -g ${WGROUP} /dev/null /var/log/common.log
 		$(INSTALL) -d -m 0777 -o root -g root /var/log/stderr
 		$(INSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
+		[ -f $(XLDB) ] || $(CPIDB) -new $(XLDB)
 		[ -f $(ACCOUNTSDB) ] || \
 		    $(ACCOUNT_TOOL) \
 			-database $(ACCOUNTSDB) \
 			-init -administrator administrator -password 'CHANGEME!'
-		[ -f $(XLDB) ] || touch $(XLDB)
 		[ -f $(XLTODO) ] || touch $(XLTODO)
 		$(CHMOD) 0666 $(ACCOUNTSDB) $(XLDB) $(XLTODO)
 

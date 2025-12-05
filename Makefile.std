@@ -29,8 +29,12 @@ WGROUP:=	$(shell awk -F: '/^(apache|www-data)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
+SYSTEMBIN?=	/usr/local/bin
+SYSTEMLIB?=	/usr/local/lib
+
 ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
-ACCOUNT_TOOL=	$(PROJECTSDIR)/cpi/tests/cpi_user.pl
+CPI_USER=	$(SYSTEMBIN)/cpi_user
+CPI_DB=		$(SYSTEMBIN)/cpi_db
 XLDB=		$(PROJECTSDIR)/common/db/xl.db
 
 ifneq (,$(wildcard /usr/bin/gcc))
@@ -60,9 +64,6 @@ ifneq (,$(wildcard src/*))
 else
     SRCDIR=.
 endif
-
-SYSTEMBIN?=	/usr/local/bin
-SYSTEMLIB?=	/usr/local/lib
 
 ifneq (,$(wildcard $(SRCDIR)/app.cgi))
     OFFSET=/sto
@@ -274,20 +275,19 @@ ifneq (,$(WWWDIR))
 		$(MKDIR) -p $(WWWDIR)
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
 		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
-		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -group $(PROJECT)_user -full "$(PROJECTUC) user"
-		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
-		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -merge -user admin_$(PROJECT) -password "CHANGEME!" \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
-		$(ACCOUNT_TOOL) -database $(ACCOUNTSDB) \
+		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -merge -user administrator \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
-		@echo '$VAR1={};' > /tmp/stub.po
-		$(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
+		[ -f $(PROJECTDBDIR)/app.db ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
 		$(CHMOD) 0666 $(PROJECTDBDIR)/app.db
 		@$(RM) -f /tmp/stub.po
 endif
