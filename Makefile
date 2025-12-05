@@ -17,9 +17,9 @@ install:
 		$(INSTALL) -m 0666 -o ${WUSER} -g ${WGROUP} /dev/null /var/log/common.log
 		$(INSTALL) -d -m 0777 -o root -g root /var/log/stderr
 		$(INSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
-		[ -f $(XLDB) ] || $(CPIDB) -new $(XLDB)
+		[ -f $(XLDB) ] || $(CPI_DB) -new $(XLDB)
 		[ -f $(ACCOUNTSDB) ] || \
-		    $(ACCOUNT_TOOL) \
+		    $(CPI_USER) \
 			-database $(ACCOUNTSDB) \
 			-init -administrator administrator -password 'CHANGEME!'
 		[ -f $(XLTODO) ] || touch $(XLTODO)
