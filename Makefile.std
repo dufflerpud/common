@@ -31,6 +31,7 @@ IGROUP:=	$(shell id -g)
 
 ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 ACCOUNT_TOOL=	$(PROJECTSDIR)/cpi/tests/cpi_user.pl
+XLDB=		$(PROJECTSDIR)/common/db/xl.db
 
 ifneq (,$(wildcard /usr/bin/gcc))
     GCC=gcc

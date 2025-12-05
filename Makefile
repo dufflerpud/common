@@ -10,6 +10,7 @@
 #@HDR@	it is furnished.
 PROJECTSDIR?=$(shell echo $(CURDIR) | sed -e 's+/projects/.*+/projects+')
 include $(PROJECTSDIR)/common/Makefile.std
+XLTODO=$(subst .db,.todo,$(XLDB))
 
 install:
 		$(INSTALL) -d -m 0777 -o root -g root ${PROJECTDIR}/SIDS
@@ -20,7 +21,9 @@ install:
 		    $(ACCOUNT_TOOL) \
 			-database $(ACCOUNTSDB) \
 			-init -administrator administrator -password 'CHANGEME!'
-		$(CHMOD) 0666 $(ACCOUNTSDB)
+		[ -f $(XLDB) ] || touch $(XLDB)
+		[ -f $(XLTODO) ] || touch $(XLTODO)
+		$(CHMOD) 0666 $(ACCOUNTSDB) $(XLDB) $(XLTODO)
 
 %:
 		@echo "Invoking std_$@ rule:"
