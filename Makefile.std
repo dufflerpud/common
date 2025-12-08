@@ -281,7 +281,7 @@ ifneq (,$(WWWDIR))
 		    -group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
 		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -merge -user admin_$(PROJECT) -password "CHANGEME!" \
-		    -groups +$(PROJECT)_user+$(PROJECT)_admin
+		    -groups +$(PROJECT)_user
 		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -merge -user administrator \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
