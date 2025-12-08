@@ -288,7 +288,7 @@ ifneq (,$(WWWDIR))
 		    -merge -user "$(PROJECTUC) admin" -password "$(BAD_PASSWORD)" \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user $(ADMINISTRATOR)
+		    -merge -user $(ADMINISTRATOR) \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
