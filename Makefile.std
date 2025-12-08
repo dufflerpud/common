@@ -32,6 +32,8 @@ IGROUP:=	$(shell id -g)
 SYSTEMBIN?=	/usr/local/bin
 SYSTEMLIB?=	/usr/local/lib
 
+ADMINISTRATOR	Administrator
+BAD_PASSWORD=	CHANGEME!
 ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 CPI_USER=	$(SYSTEMBIN)/cpi_user
 CPI_DB=		$(SYSTEMBIN)/cpi_db
@@ -280,10 +282,13 @@ ifneq (,$(WWWDIR))
 		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
 		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user "$(PROJECTUC) user" -password "CHANGEME!" \
+		    -merge -user "$(PROJECTUC) user" -password "$(BAD_PASSWORD)" \
 		    -groups +$(PROJECT)_user
 		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user "$(PROJECTUC) admin" -password "CHANGEME!" \
+		    -merge -user "$(PROJECTUC) admin" -password "$(BAD_PASSWORD)" \
+		    -groups +$(PROJECT)_user+$(PROJECT)_admin
+		$(CPI_USER) -database $(ACCOUNTSDB) \
+		    -merge -user $(ADMINISTRATOR)
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))

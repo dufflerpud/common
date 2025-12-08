@@ -21,7 +21,7 @@ install:
 		[ -f $(ACCOUNTSDB) ] || \
 		    $(CPI_USER) \
 			-database $(ACCOUNTSDB) \
-			-init -administrator administrator -password 'CHANGEME!'
+			-init -administrator $(ADMINISTRATOR) -password '$(BAD_PASSWORD)'
 		[ -f $(XLTODO) ] || touch $(XLTODO)
 		$(CHMOD) 0666 $(ACCOUNTSDB) $(XLDB) $(XLTODO)
 
