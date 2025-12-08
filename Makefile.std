@@ -32,7 +32,7 @@ IGROUP:=	$(shell id -g)
 SYSTEMBIN?=	/usr/local/bin
 SYSTEMLIB?=	/usr/local/lib
 
-ADMINISTRATOR	Administrator
+ADMINISTRATOR=	Administrator
 BAD_PASSWORD=	CHANGEME!
 ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 CPI_USER=	$(SYSTEMBIN)/cpi_user
