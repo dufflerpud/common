@@ -280,10 +280,10 @@ ifneq (,$(WWWDIR))
 		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
 		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user "$(PROJECT) user" -password "CHANGEME!" \
+		    -merge -user "$(PROJECTUC) user" -password "CHANGEME!" \
 		    -groups +$(PROJECT)_user
 		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user "$(PROJECT) admin" \
+		    -merge -user "$(PROJECTUC) admin" \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
