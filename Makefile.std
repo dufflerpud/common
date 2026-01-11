@@ -139,7 +139,7 @@ OBVIOUS_SRC=	$(wildcard \
 ifneq (,$(OBVIOUS_SRC))
 PROGRAMS?=	$(PROGRAM)
 else
-PROGRAMS?=	$(filter-out app,$(notdir $(basename $(wildcard src/*))))
+PROGRAMS?=	$(filter-out bup,$(filter-out app,$(notdir $(basename $(wildcard src/*)))))
 endif
 
 BINS?=		$(foreach b,$(PROGRAMS),$(BINDIR)/$(b))
