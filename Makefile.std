@@ -17,6 +17,7 @@ PROJECT?=	$(shell echo $(CWD) | $(SED) -e 's+.*/projects/++' -e 's+/.*++')
 PROJECTUC=	$(shell echo $(PROJECT) | perl -e 'print ucfirst(<>)')
 PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
 PROJECTDBDIR?=	$(PROJECTDIR)/db
+PROJECTPUBLIC?=	$(PROJECTDIR)/public
 BUPDIR?=	$$HOME/bups/$(PROJECT)
 NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL:=		/bin/sh
@@ -67,7 +68,7 @@ else
     SRCDIR=.
 endif
 
-ifneq (,$(wildcard $(SRCDIR)/app.cgi))
+ifneq (,$(wildcard $(SRCDIR)/app.cgi $(PUBLICDIR)/*))
     OFFSET=/sto
     ifeq (,$(SYSTEMWWW))
 	ifneq (,$(wildcard /var/www/$(PROJECT)))
@@ -91,8 +92,9 @@ ifneq (,$(wildcard $(SRCDIR)/app.cgi))
 
     WWWDIR?=$(SYSTEMWWW)
 
+ifneq (,$(wildcard $(SRCDIR)/app.cgi))
     PROGRAMCGI?=$(WWWDIR)/index.cgi
-    PROJECTPUBLIC?=$(PROJECTDIR)/public
+endif
 endif
 
 BUILT_SYS?=	$(BUILT_TOP_SYS)/$(BUILT_FOR)-$(BUILT_BY)
@@ -275,6 +277,7 @@ endif
 ifneq (,$(WWWDIR))
 		[ ! -h $(WWWDIR) ] || $(RM) -f $(WWWDIR)
 		$(MKDIR) -p $(WWWDIR)
+ifneq (,$(PROGRAMCGI))
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
 		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
 		$(CPI_USER) -database $(ACCOUNTSDB) \
@@ -296,8 +299,10 @@ ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
 		$(CHMOD) 0666 $(PROJECTDBDIR)/app.db
 		@$(RM) -f /tmp/stub.po
 endif
-ifneq (,$(wildcard public/*))
-		$(TAR) cCf public - . | $(TAR) xCf $(WWWDIR) -
+endif
+ifneq (,$(wildcard $(PROJECTPUBLIC)/*))
+		#$(TAR) cCf $(PROJECTPUBLIC) - . | $(TAR) xCf $(WWWDIR) -
+		$(INSTALL) $(PROJECTPUBLIC)/* $(WWWDIR)
 endif
 endif
 
