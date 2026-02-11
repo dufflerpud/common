@@ -1,5 +1,4 @@
-#
-#indx#	Makefile.std - (VERY brief explanation of what this file is/does)
+#indx#	Makefile.std - Makefile included by every cpi app
 #@HDR@	$Id$
 #@HDR@
 #@HDR@	Copyright (c) 2024-2026 Christopher Caldwell (Christopher.M.Caldwell0@gmail.com)
@@ -27,8 +26,7 @@
 #
 #hist#	2026-02-10 - Christopher.M.Caldwell0@gmail.com - Created
 ########################################################################
-#doc#	Makefile.std - (Replace with more full explanation of what this file is or does
-#doc#	spread across multiple lines)
+#doc#	Makefile.std - Makefile included by every cpi app
 ########################################################################
 DEBUG_OUT?=	:
 

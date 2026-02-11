@@ -1,5 +1,4 @@
-#
-#indx#	Makefile - (VERY brief explanation of what this file is/does)
+#indx#	Makefile - Build common files
 #@HDR@	$Id$
 #@HDR@
 #@HDR@	Copyright (c) 2024-2026 Christopher Caldwell (Christopher.M.Caldwell0@gmail.com)
@@ -27,8 +26,7 @@
 #
 #hist#	2026-02-10 - Christopher.M.Caldwell0@gmail.com - Created
 ########################################################################
-#doc#	Makefile - (Replace with more full explanation of what this file is or does
-#doc#	spread across multiple lines)
+#doc#	Makefile - Build common files
 ########################################################################
 PROJECTSDIR?=$(shell echo $(CURDIR) | sed -e 's+/projects/.*+/projects+')
 include $(PROJECTSDIR)/common/Makefile.std
