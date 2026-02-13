@@ -316,7 +316,7 @@ ifneq (,$(PROGRAMCGI))
 		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
 		[ -f $(PROJECTDBDIR)/app.db ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
-		$(CHMOD) 0666 $(PROJECTDBDIR)/app.db
+		[ ! -f $(PROJECTDBDIR)/app.db ] || $(CHMOD) 0666 $(PROJECTDBDIR)/app.db
 		@$(RM) -f /tmp/stub.po
 endif
 endif
