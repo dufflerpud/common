@@ -60,9 +60,13 @@ CPI_USER=	$(SYSTEMBIN)/cpi_user
 CPI_DB=		$(SYSTEMBIN)/cpi_db
 XLDB=		$(PROJECTSDIR)/common/db/xl.db
 
+ifneq (,$(wildcard /etc/cpi_cfg.pl))
+    WEBOFFSET=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
+endif
+
 ifneq (,$(wildcard /usr/bin/gcc))
-    GCC=gcc
-    CC=$(GCC)
+    GCC?=gcc
+    CC?=$(GCC)
     BUILT_FOR?= $(shell $(GCC) -v 2>&1 | awk '/Target:/   { print $$2 }')
     BUILT_BY?=	$(shell $(GCC) -v 2>&1 | grep 'version' | grep -v Configured | sed -e 's/.*version//' | awk '{ print "gcc"$$1 }' )
 else
@@ -89,16 +93,16 @@ else
 endif
 
 ifneq (,$(wildcard $(SRCDIR)/app.cgi $(PUBLICDIR)/*))
-    OFFSET=/sto
+    WEBOFFSET?=/sto
     ifeq (,$(SYSTEMWWW))
 	ifneq (,$(wildcard /var/www/$(PROJECT)))
-	    SYSTEMWWW=/var/www/$(PROJECT)$(OFFSET)
+	    SYSTEMWWW=/var/www/$(PROJECT)$(WEBOFFSET)
 	else
-	    ifneq (,$(wildcard /var/www/www$(OFFSET)))
-	        SYSTEMWWW=/var/www/www$(OFFSET)/$(PROJECT)
+	    ifneq (,$(wildcard /var/www/www$(WEBOFFSET)))
+	        SYSTEMWWW=/var/www/www$(WEBOFFSET)/$(PROJECT)
 	    else
-		ifneq (,$(wildcard /var/www/html$(OFFSET)))
-		    SYSTEMWWW=/var/www/html$(OFFSET)/$(PROJECT)
+		ifneq (,$(wildcard /var/www/html$(WEBOFFSET)))
+		    SYSTEMWWW=/var/www/html$(WEBOFFSET)/$(PROJECT)
 		else
 		    ifneq (,$(wildcard /home/$(USER)/public_html/*))
 			SYSTEMWWW=/home/$(USER)/public_html/$(PROJECT)
@@ -218,10 +222,16 @@ std_vars:
 		@echo "	BINS			$(BINS)"
 		@echo "	SYSTEMBIN		$(SYSTEMBIN)"
 		@echo "	SYSTEMLIB		$(SYSTEMLIB)"
-ifneq (,$(OFFSET))
-		@echo "	OFFSET			$(OFFSET)"
+ifneq (,$(WEBOFFSET))
+		@echo "	WEBOFFSET		$(WEBOFFSET)"
+endif
+ifneq (,$(SYSTEMWWW))
 		@echo "	SYSTEMWWW		$(SYSTEMWWW)"
+endif
+ifneq (,$(WWWDIR))
 		@echo "	WWWDIR			$(WWWDIR)"
+endif
+ifneq (,$(PROGRAMCGI))
 		@echo "	PROGRAMCGI		$(PROGRAMCGI)"
 endif
 
