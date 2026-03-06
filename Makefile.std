@@ -45,8 +45,8 @@ OS:=		$(shell uname -s)
 GIT:=		git
 INSTALL:=	install
 MAKE:=		make
-WUSER:=		$(shell awk -F: '/^(apache|www-data)/ {print $$3}' /etc/passwd)
-WGROUP:=	$(shell awk -F: '/^(apache|www-data)/ {print $$4}' /etc/passwd)
+WUSER:=		$(shell awk -F: '/^(apache|www-data|http)/ {print $$3}' /etc/passwd)
+WGROUP:=	$(shell awk -F: '/^(apache|www-data|http)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
