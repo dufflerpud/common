@@ -34,7 +34,7 @@ XLTODO=$(subst .db,.todo,$(XLDB))
 
 install:
 		$(INSTALL) -d -m 0777 -o root -g root ${PROJECTDIR}/SIDS
-		$(INSTALL) -m 0666 -o ${WUSER} -g ${WGROUP} /dev/null /var/log/common.log
+		$(INSTALL) -m 0666 -o $(WUSER) -g $(WGROUP) /dev/null /var/log/common.log
 		$(INSTALL) -d -m 0777 -o root -g root /var/log/stderr
 		$(INSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
 		[ -f $(XLDB) ] || $(CPI_DB) -new $(XLDB)
