@@ -59,7 +59,7 @@ ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 CPI_USER=	$(SYSTEMBIN)/cpi_user
 CPI_DB=		$(SYSTEMBIN)/cpi_db
 XLDB=		$(PROJECTSDIR)/common/db/xl.db
-DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs
+DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs /usr/local/www/apache24/data
 
 ifneq (,$(wildcard /etc/cpi_cfg.pl))
     WEBOFFSET=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
