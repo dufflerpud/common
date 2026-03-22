@@ -494,9 +494,9 @@ backupdb:
 std_%:
 		@echo ""
 ifneq (,$(ORIGINAL_TARGET))
-		@echo 'Makefile for $(PROJECT) project does not support "make $(ORIGINAL_TARGET)".'
+		@echo 'Makefile for $(PROJECT) project does not support "$(MAKE) $(ORIGINAL_TARGET)".'
 else
-		@echo 'Makefile for $(PROJECT) project does not support "make $@".'
+		@echo 'Makefile for $(PROJECT) project does not support "$(MAKE) $@".'
 endif
 		@echo ""
 		@if grep -v grep Makefile | grep 'usage:' >/dev/null ; then \
