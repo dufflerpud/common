@@ -67,7 +67,7 @@ ifneq (,$(wildcard /etc/cpi_cfg.pl))
     WEBOFFSET=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
 endif
 
-ifneq (,$(wildcard /usr/bin/gcc))
+ifneq (,$(wildcard /usr/bin/gcc /usr/local/bin))
     GCC?=gcc
     CC?=$(GCC)
     BUILT_FOR?= $(shell $(GCC) -v 2>&1 | awk '/Target:/   { print $$2 }')
