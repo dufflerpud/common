@@ -53,6 +53,8 @@ IGROUP:=	$(shell id -g)
 SYSTEMBIN?=	/usr/local/bin
 SYSTEMLIB?=	/usr/local/lib
 
+SYSTEMUSER:=	0
+SYSTEMGROUP:=	0
 ADMINISTRATOR=	Administrator
 BAD_PASSWORD=	CHANGEME!
 ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
