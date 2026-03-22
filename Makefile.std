@@ -300,7 +300,7 @@ ifneq (,$(WWWDIR))
 endif
 
 std_install:
-		@make all
+		@$(MAKE) all
 ifneq (,$(PROGRAMS))
 		@set -x; $(foreach f,$(PROGRAMS), $(INSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) 2>/dev/null || $(SUDO) $(INSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) ;)
 endif
