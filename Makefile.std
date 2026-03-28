@@ -65,6 +65,7 @@ DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system
 
 ifneq (,$(wildcard /etc/cpi_cfg.pl))
     WEBOFFSET=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
+    WEBTOP=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBTOP;')
 endif
 
 ifneq (,$(wildcard /usr/bin/gcc /usr/local/bin))
@@ -95,20 +96,23 @@ else
     SRCDIR=.
 endif
 
-
 ifneq (,$(wildcard $(SRCDIR)/app.cgi $(PUBLICDIR)/*))
     WEBOFFSET?=/sto
-    ifeq (,$(SYSTEMWWW))
-	ifneq (,$(wildcard /var/www/$(PROJECT)))
-	    SYSTEMWWW=/var/www/$(PROJECT)$(WEBOFFSET)
-	else
-	    ifneq (,$(wildcard $(addsuffix $(WEBOFFSET), $(DOCUMENT_ROOTS))))
-	    	SYSTEMWWW=$(wildcard $(addsuffix $(WEBOFFSET), $(DOCUMENT_ROOTS)))/$(PROJECT)
+    ifneq (,$(WEBTOP))
+        SYSTEMWWW=$(WEBTOP)/$(PROJECT)
+    else
+	ifeq (,$(SYSTEMWWW))
+	    ifneq (,$(wildcard /var/www/$(PROJECT)))
+		SYSTEMWWW=/var/www/$(PROJECT)$(WEBOFFSET)
 	    else
-		ifneq (,$(wildcard /home/$(USER)/public_html/*))
-		    SYSTEMWWW=/home/$(USER)/public_html/$(PROJECT)
+		ifneq (,$(wildcard $(addsuffix $(WEBOFFSET), $(DOCUMENT_ROOTS))))
+		    SYSTEMWWW=$(wildcard $(addsuffix $(WEBOFFSET), $(DOCUMENT_ROOTS)))/$(PROJECT)
 		else
-		    SYSTEMWWW=$(PROJECTDIR)/html
+		    ifneq (,$(wildcard /home/$(USER)/public_html/*))
+			SYSTEMWWW=/home/$(USER)/public_html/$(PROJECT)
+		    else
+			SYSTEMWWW=$(PROJECTDIR)/html
+		    endif
 		endif
 	    endif
 	endif
