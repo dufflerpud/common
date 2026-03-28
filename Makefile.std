@@ -45,8 +45,8 @@ OS?=		$(shell uname -s)
 GIT?=		git
 INSTALL?=	install
 MAKE?=		make
-WUSER:=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun)/ {print $$3}' /etc/passwd)
-WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun)/ {print $$4}' /etc/passwd)
+WUSER:=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$3}' /etc/passwd)
+WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
@@ -61,7 +61,7 @@ ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 CPI_USER=	$(SYSTEMBIN)/cpi_user
 CPI_DB=		$(SYSTEMBIN)/cpi_db
 XLDB=		$(PROJECTSDIR)/common/db/xl.db
-DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs /usr/local/www/apache24/data
+DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs /usr/local/www/apache24/data /var/apache2/2.4/htdocs
 
 ifneq (,$(wildcard /etc/cpi_cfg.pl))
     WEBOFFSET=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
