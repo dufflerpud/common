@@ -43,12 +43,26 @@ NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL?=		/bin/sh
 OS?=		$(shell uname -s)
 GIT?=		git
-INSTALL?=	install
-MAKE?=		make
 WUSER:=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$3}' /etc/passwd)
 WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
+
+ifeq (,$(MAKE))
+    ifneq (,$(shell command -v gmake))
+        MAKE=gmake
+    else
+        MAKE=make
+    endif
+endif
+
+ifeq (,$(GNUINSTALL))
+    ifneq (,$(wildcard /usr/gnu/bin/install))
+	GNUINSTALL=/usr/gnu/bin/install
+    else
+	GNUINSTALL=install
+    endif
+endif
 
 SYSTEMBIN?=	/usr/local/bin
 SYSTEMLIB?=	/usr/local/lib
@@ -306,7 +320,7 @@ endif
 std_install:
 		@$(MAKE) all
 ifneq (,$(PROGRAMS))
-		@set -x; $(foreach f,$(PROGRAMS), $(INSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) 2>/dev/null || $(SUDO) $(INSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) ;)
+		@set -x; $(foreach f,$(PROGRAMS), $(GNUINSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) 2>/dev/null || $(SUDO) $(GNUINSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) ;)
 endif
 ifneq (,$(WWWDIR))
 		[ ! -h $(WWWDIR) ] || $(RM) -f $(WWWDIR)
@@ -327,7 +341,7 @@ ifneq (,$(PROGRAMCGI))
 		$(CPI_USER) -database $(ACCOUNTSDB) \
 		    -merge -user $(ADMINISTRATOR) \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
-		$(INSTALL) -d -m 0777 $(PROJECTDBDIR)
+		$(GNUINSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
 		[ -f $(PROJECTDBDIR)/app.db ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
 		[ ! -f $(PROJECTDBDIR)/app.db ] || $(CHMOD) 0666 $(PROJECTDBDIR)/app.db
@@ -336,7 +350,7 @@ endif
 endif
 ifneq (,$(wildcard $(PROJECTPUBLIC)/*))
 		#$(TAR) cCf $(PROJECTPUBLIC) - . | $(TAR) xCf $(WWWDIR) -
-		$(INSTALL) $(PROJECTPUBLIC)/* $(WWWDIR)
+		$(GNUINSTALL) $(PROJECTPUBLIC)/* $(WWWDIR)
 endif
 endif
 
