@@ -33,10 +33,10 @@ include $(PROJECTSDIR)/common/Makefile.std
 XLTODO=$(subst .db,.todo,$(XLDB))
 
 install:
-		$(INSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) ${PROJECTDIR}/SIDS
-		$(INSTALL) -m 0666 -o $(WUSER) -g $(WGROUP) /dev/null /var/log/common.log
-		$(INSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) /var/log/stderr
-		$(INSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
+		$(GNUINSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) ${PROJECTDIR}/SIDS
+		$(GNUINSTALL) -m 0666 -o $(WUSER) -g $(WGROUP) /dev/null /var/log/common.log
+		$(GNUINSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) /var/log/stderr
+		$(GNUINSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
 		[ -f $(XLDB) ] || $(CPI_DB) -new $(XLDB)
 		[ -f $(ACCOUNTSDB) ] || \
 		    $(CPI_USER) \
