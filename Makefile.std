@@ -57,7 +57,7 @@ ifeq (,$(MAKE))
 endif
 
 ifeq (,$(GNUINSTALL))
-    GNUINSTALL=$(shell command -v gmake)
+    GNUINSTALL=$(shell command -v ginstall)
     ifeq (,$(GNUINSTALL))
 	ifneq (,$(wildcard /usr/gnu/bin/install))
 	    GNUINSTALL=/usr/gnu/bin/install
