@@ -175,7 +175,7 @@ RMDIR=		rmdir
 MKDIR=		mkdir
 CHOWN=		chown
 CHMOD=		chmod
-INSTALL=	install
+INSTALL=	$(GNUINSTALL)
 SUDO=		sudo
 
 PROGRAM?=	$(PROJECT)
