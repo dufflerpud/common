@@ -30,6 +30,11 @@
 ########################################################################
 DEBUG_OUT?=	:
 
+ifneq (,$(wildcard /boot/home/config/non-packaged))
+    USRLOCAL=/boot/home/config/non-packaged
+else
+    USRLOCAL=/usr/local
+endif
 SED=		sed
 CWD?=		$(shell pwd)
 PROJECTSDIR?=	$(shell echo $(CWD) | $(SED) -e 's+/projects/.*+/projects+')
@@ -62,8 +67,8 @@ ifeq (,$(GNUINSTALL))
 	ifneq (,$(wildcard /usr/gnu/bin/install))
 	    GNUINSTALL=/usr/gnu/bin/install
 	else
-	    ifneq (,$(wildcard /usr/local/bin/ginstall))
-		GNUINSTALL=/usr/local/bin/ginstall
+	    ifneq (,$(wildcard $(USRLOCAL)/bin/ginstall))
+		GNUINSTALL=$(USRLOCAL)/bin/ginstall
 	    else
 	        GNUINSTALL=install
 	    endif
@@ -71,8 +76,9 @@ ifeq (,$(GNUINSTALL))
     endif
 endif
 
-SYSTEMBIN?=	/usr/local/bin
-SYSTEMLIB?=	/usr/local/lib
+SYSTEMBIN?=	$(USRLOCAL)/bin
+SYSTEMLIB?=	$(USRLOCAL)/lib
+SYSTEMETC?=	$(USRLOCAL)/etc
 
 SYSTEMUSER:=	0
 SYSTEMGROUP:=	0
@@ -82,14 +88,14 @@ ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
 CPI_USER=	$(SYSTEMBIN)/cpi_user
 CPI_DB=		$(SYSTEMBIN)/cpi_db
 XLDB=		$(PROJECTSDIR)/common/db/xl.db
-DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs /usr/local/www/apache24/data /var/apache2/2.4/htdocs
+DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs $(USRLOCAL)/www/apache24/data /var/apache2/2.4/htdocs
 
-ifneq (,$(wildcard /etc/cpi_cfg.pl))
-    WEBOFFSET=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
-    WEBTOP=$(shell perl -e 'eval(`cat /etc/cpi_cfg.pl`); print $$cpi_vars::WEBTOP;')
+ifneq (,$(wildcard $(SYSTEMETC)/cpi_cfg.pl))
+    WEBOFFSET=$(shell perl -e 'eval(`cat $(SYSTEMETC)/cpi_cfg.pl`); print $$cpi_vars::WEBOFFSET;')
+    WEBTOP=$(shell perl -e 'eval(`cat $(SYSTEMETC)/cpi_cfg.pl`); print $$cpi_vars::WEBTOP;')
 endif
 
-ifneq (,$(wildcard /usr/bin/gcc /usr/local/bin))
+ifneq (,$(wildcard /usr/bin/gcc $(USRLOCAL)/bin))
     GCC?=gcc
     CC?=$(GCC)
     BUILT_FOR?= $(shell $(GCC) -v 2>&1 | awk '/Target:/   { print $$2 }')
