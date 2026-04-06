@@ -50,6 +50,8 @@ OS?=		$(shell uname -s)
 GIT?=		git
 WUSER:=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$3}' /etc/passwd)
 WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$4}' /etc/passwd)
+WUSER?=user
+WGROUP?=users
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
