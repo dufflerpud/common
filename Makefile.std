@@ -49,7 +49,7 @@ SHELL?=		/bin/sh
 OS?=		$(shell uname -s)
 GIT?=		git
 WUSER:=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user)/ {print $$3}' /etc/passwd)
-WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|users)/ {print $$4}' /etc/passwd)
+WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
