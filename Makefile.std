@@ -48,10 +48,8 @@ NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL?=		/bin/sh
 OS?=		$(shell uname -s)
 GIT?=		git
-WUSER?=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$3}' /etc/passwd)
-WGROUP?=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd)/ {print $$4}' /etc/passwd)
-WUSER?=user
-WGROUP?=users
+WUSER:=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user)/ {print $$3}' /etc/passwd)
+WGROUP:=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|users)/ {print $$4}' /etc/passwd)
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
 
