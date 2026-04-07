@@ -32,8 +32,10 @@ DEBUG_OUT?=	:
 
 ifneq (,$(wildcard /boot/home/config/non-packaged))
     USRLOCAL=/boot/home/config/non-packaged
+    DBEXT=po
 else
     USRLOCAL=/usr/local
+    DBEXT=db
 endif
 SED=		sed
 CWD?=		$(shell pwd)
@@ -84,10 +86,10 @@ SYSTEMUSER:=	0
 SYSTEMGROUP:=	0
 ADMINISTRATOR=	Administrator
 BAD_PASSWORD=	CHANGEME!
-ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.db
+ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.$(DBEXT)
 CPI_USER=	$(SYSTEMBIN)/cpi_user
 CPI_DB=		$(SYSTEMBIN)/cpi_db
-XLDB=		$(PROJECTSDIR)/common/db/xl.db
+XLDB=		$(PROJECTSDIR)/common/db/xl.$(DBEXT)
 DOCUMENT_ROOTS=/var/www/www /var/www/html /srv/http /srv/www/htdocs /boot/system/data/apache/htdocs $(USRLOCAL)/www/apache24/data /var/apache2/2.4/htdocs
 
 ifneq (,$(wildcard $(SYSTEMETC)/cpi_cfg.pl))
@@ -289,7 +291,7 @@ endif
 std_backup:
 		$(MAKE) clean
 		@$(MKDIR) -p $(BUPDIR)
-ifneq (,$(wildcard app.db))
+ifneq (,$(wildcard app.$(DBEXT)))
 		$(MAKE) app.po
 endif
 		$(TAR) cCf $(PROJECTSDIR) - $(PROJECT) | bzip2 -9 > $(ARCNAME)
@@ -355,9 +357,9 @@ ifneq (,$(PROGRAMCGI))
 		    -merge -user $(ADMINISTRATOR) \
 		    -groups +$(PROJECT)_user+$(PROJECT)_admin
 		$(GNUINSTALL) -d -m 0777 $(PROJECTDBDIR)
-ifeq (,$(wildcard $(PROJECTDBDIR)/app.db))
-		[ -f $(PROJECTDBDIR)/app.db ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.db
-		[ ! -f $(PROJECTDBDIR)/app.db ] || $(CHMOD) 0666 $(PROJECTDBDIR)/app.db
+ifeq (,$(wildcard $(PROJECTDBDIR)/app.$(DBEXT)))
+		[ -f $(PROJECTDBDIR)/app.$(DBEXT) ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.$(DBEXT)
+		[ ! -f $(PROJECTDBDIR)/app.$(DBEXT) ] || $(CHMOD) 0666 $(PROJECTDBDIR)/app.$(DBEXT)
 		@$(RM) -f /tmp/stub.po
 endif
 endif
