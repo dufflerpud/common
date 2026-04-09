@@ -206,7 +206,7 @@ BINS?=		$(foreach b,$(PROGRAMS),$(BINDIR)/$(b))
 DIRS=		$(filter-out common,$(subst /Makefile,,$(wildcard */Makefile)))
 
 #SED_MAP_DIRS=	$(SED) -e 's:%%PROJECTDIR%%:$(PROJECTDIR):g' -e 's:%%WWWDIR%%:$(WWWDIR):g'
-SED_MAP_DIRS=	$(SED) -e 's:my $$PROJECTDIR.*:my $$PROJECTDIR = "$(PROJECTDIR)";:' -e 's:%%PROJECTDIR%%:$(PROJECTDIR):g' -e 's:my $$WWWDIR.*:my $$WWWDIR = "$(WWWDIR)";:' -e 's:%%WWWDIR%%:$(WWWDIR):g'
+SED_MAP_DIRS=	$(SED) -e 's:my $$PROJECTDIR.*:my $$PROJECTDIR = "$(PROJECTDIR)";:' -e 's:%%PROJECTDIR%%:$(PROJECTDIR):g' -e 's:my $$WWWDIR.*:my $$WWWDIR = "$(WWWDIR)";:' -e 's:%%WWWDIR%%:$(WWWDIR):g' -e "s:use lib \"/usr/local/lib/perl\":use lib \"$(USRLOCAL)/lib/perl\":g"
 
 std_usage:
 		@echo "Standard make targets:"
