@@ -38,6 +38,7 @@ else
     DBEXT=db
 endif
 SED=		sed
+CURL=		curl
 CWD?=		$(shell pwd)
 PROJECTSDIR?=	$(shell echo $(CWD) | $(SED) -e 's+/projects/.*+/projects+')
 PROJECT?=	$(shell echo $(CWD) | $(SED) -e 's+.*/projects/++' -e 's+/.*++')
@@ -45,6 +46,7 @@ PROJECTUC=	$(shell echo $(PROJECT) | perl -e 'print ucfirst(<>)')
 PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
 PROJECTDBDIR?=	$(PROJECTDIR)/db
 PROJECTPUBLIC?=	$(PROJECTDIR)/public
+TEST_URL?=	http://localhost$(WEBOFFSET)/$(PROJECT)
 BUPDIR?=	$$HOME/bups/$(PROJECT)
 NOW?=		$(shell date +%Y-%m-%d:%H:%M)
 SHELL?=		/bin/sh
@@ -373,7 +375,13 @@ std_test:
 ifneq (,$(wildcard NOTEST))
 		cat NOTEST
 else
+    ifneq (,$(wildcard $(BINDIR)/$(PROGRAM)))
 		$(BINDIR)/$(PROGRAM)
+    endif
+    ifneq (,$(wildcard $(SRCDIR)/app.cgi))
+		@($(CURL) -o - $(TEST_URL) | grep -q "Please identify yourself" ) || \
+		    (echo "Cannot access $(TEST_URL) ."; false)
+    endif
 endif
 
 std_rebuild:
