@@ -379,7 +379,7 @@ else
 		$(BINDIR)/$(PROGRAM)
     endif
     ifneq (,$(wildcard $(SRCDIR)/app.cgi))
-		@($(CURL) -s -L $(TEST_URL) | grep -q "Please identify yourself" ) || \
+		@($(CURL) -s -L $(TEST_URL) | grep -q "Please identify yourself" && echo "$(TEST_URL) tests OK.") || \
 		    (echo "Cannot access $(TEST_URL) ."; false)
     endif
 endif
