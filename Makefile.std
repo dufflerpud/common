@@ -127,7 +127,7 @@ else
     SRCDIR=.
 endif
 
-ifneq (,$(wildcard $(SRCDIR)/app.cgi $(PUBLICDIR)/*))
+ifneq (,$(wildcard $(SRCDIR)/app.cgi $(PROJECTPUBLIC)/*))
     WEBOFFSET?=/sto
     ifneq (,$(WEBTOP))
         SYSTEMWWW=$(WEBTOP)/$(PROJECT)
