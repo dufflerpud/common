@@ -54,11 +54,16 @@ OS?=		$(shell uname -s)
 GIT?=		git
 
 ifneq (,$(wildcard /etc/passwd))
-WUSER?=		$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user|_www):/ {print $$3}' /etc/passwd)
-WGROUP?=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user|_www):/ {print $$4}' /etc/passwd)
+    WUSER?=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user|_www):/ {print $$3}' /etc/passwd)
+    WGROUP?=	$(shell awk -F: '/^(apache|www|www-data|http|wwwrun|webservd|user|_www):/ {print $$4}' /etc/passwd)
 endif
-WUSER?=0
-WGROUP?=0
+ifneq (,$(wildcard /cgydrive/c))
+    WUSER?=Administrator
+    WGROUP?=Administrators
+else
+    WUSER?=0
+    WGROUP?=0
+endif
 
 IUSER:=		$(shell id -u)
 IGROUP:=	$(shell id -g)
