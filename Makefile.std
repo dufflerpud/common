@@ -90,12 +90,12 @@ SYSTEMBIN?=	$(USRLOCAL)/bin
 SYSTEMLIB?=	$(USRLOCAL)/lib
 SYSTEMETC?=	$(USRLOCAL)/etc
 
-ifeq (,$(CYGWIN))
+ifneq (,$(CYGWIN))
     SYSTEMUSER:=Administrator
     SYSTEMGROUP:=Administrators
 else
-    SYSTEMUSER:=	0
-    SYSTEMGROUP:=	0
+    SYSTEMUSER:=0
+    SYSTEMGROUP:=0
 endif
 ADMINISTRATOR=	Administrator
 BAD_PASSWORD=	CHANGEME!
