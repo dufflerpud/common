@@ -90,8 +90,13 @@ SYSTEMBIN?=	$(USRLOCAL)/bin
 SYSTEMLIB?=	$(USRLOCAL)/lib
 SYSTEMETC?=	$(USRLOCAL)/etc
 
-SYSTEMUSER:=	0
-SYSTEMGROUP:=	0
+ifeq (,$(CYGWIN))
+    SYSTEMUSER:=Administrator
+    SYSTEMGROUP:=Administrators
+else
+    SYSTEMUSER:=	0
+    SYSTEMGROUP:=	0
+endif
 ADMINISTRATOR=	Administrator
 BAD_PASSWORD=	CHANGEME!
 ACCOUNTSDB=	$(PROJECTSDIR)/common/db/accounts.$(DBEXT)
