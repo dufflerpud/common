@@ -90,7 +90,7 @@ SYSTEMBIN?=	$(USRLOCAL)/bin
 SYSTEMLIB?=	$(USRLOCAL)/lib
 SYSTEMETC?=	$(USRLOCAL)/etc
 
-ifneq (,$(CYGWIN))
+ifneq (,$(wildcard /cygdrive))
     SYSTEMUSER:=Administrator
     SYSTEMGROUP:=Administrators
 else
