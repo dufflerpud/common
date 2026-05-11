@@ -116,15 +116,28 @@ ifneq (,$(CPICFGS))
     WEBTOP=$(shell perl -e 'eval(`cat $(word 1,$(CPICFGS))`); print $$cpi_vars::WEBTOP;')
 endif
 
-ifneq (,$(wildcard /usr/bin/gcc $(USRLOCAL)/bin))
-    GCC?=gcc
-    CC?=$(GCC)
-    BUILT_FOR?= $(shell $(GCC) -v 2>&1 | awk '/Target:/   { print $$2 }')
-    BUILT_BY?=	$(shell $(GCC) -v 2>&1 | grep 'version' | grep -v Configured | sed -e 's/.*version//' | awk '{ print "gcc"$$1 }' )
-else
-    BUILT_FOR=$(shell uname -r)-$(shell uname -s)-$(shell uname -m)
-    BUILT_FOR=$(shell $(CC) -v)		# Probably will not work
+ifeq (,$(CC))
+    ifneq (,$(GCC))
+        CC=$(GCC)
+    else
+	ifneq (,$(command -v gcc))
+	    GCC=gcc
+	    CC=gcc
+	else
+	    GCC=cc
+	    CC=cc
+	endif
+    endif
+eise
+    ifeq (,$(GCC))
+        CC=$(GCC)
+    endif
 endif
+
+BUILT_FOR?=$(shell $(CC) -v 2>&1 | awk '/Target:/   { print $$2 }')
+BUILT_BY?=$(shell $(CC) -v 2>&1 | grep 'version' | grep -v Configured | sed -e 's/.*version//' | awk '{ print "gcc"$$1 }' )
+BUILT_FOR?=$(shell uname -r)-$(shell uname -s)-$(shell uname -m)
+BUILT_BY?=$(shell $(CC) -v)		# Probably will not work
 
 INSTALL_DEFAULTS:=	-m 755
 ifeq (Darwin,$(OS))
