@@ -116,21 +116,15 @@ ifneq (,$(CPICFGS))
     WEBTOP=$(shell perl -e 'eval(`cat $(word 1,$(CPICFGS))`); print $$cpi_vars::WEBTOP;')
 endif
 
-ifeq (,$(CC))
-    ifneq (,$(GCC))
-        CC=$(GCC)
+ifneq (,$(CROSS_COMPILER))
+    CC=$(CROSS_COMPILER)
+else
+    ifneq (,(command -v gcc))
+	CC=gcc
     else
-	ifneq (,$(command -v gcc))
-	    GCC=gcc
-	    CC=gcc
-	else
-	    GCC=cc
+	ifneq (,(command -v cc))
 	    CC=cc
 	endif
-    endif
-eise
-    ifeq (,$(GCC))
-        CC=$(GCC)
     endif
 endif
 
@@ -206,7 +200,7 @@ CFLAGS+=	-g -ggdb $(DEFINES) $(INCLUDE_FLAGS)
 LDFLAGS+=
 LDLIBS+=
 
-#CC=		$(GCC)
+#CC=		cc
 LN=		ln
 RM=		rm
 CP=		cp
@@ -279,7 +273,6 @@ std_vars:
 		@echo "	LDFLAGS			$(LDFLAGS)"
 		@echo "	LDLIBS			$(LDLIBS)"
 		@echo "	CC			$(CC)"
-		@echo "	GCC			$(GCC)"
 		@echo "	PROGRAM			$(PROGRAM)"
 		@echo "	SRCDIR			$(SRCDIR)"
 		@echo "	OBVIOUS_SRC		$(OBVIOUS_SRC)"
