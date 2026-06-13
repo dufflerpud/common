@@ -34,6 +34,7 @@ XLTODO=$(subst .db,.todo,$(XLDB))
 
 install:
 		$(GNUINSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) ${PROJECTDIR}/SIDS
+		$(GNUINSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) ${PROJECTDIR}/db
 		$(GNUINSTALL) -m 0666 -o $(WUSER) -g $(WGROUP) /dev/null /var/log/common.log
 		$(GNUINSTALL) -d -m 0777 -o $(SYSTEMUSER) -g $(SYSTEMGROUP) /var/log/stderr
 		$(GNUINSTALL) -d -m 0777 $(dir $(ACCOUNTSDB))
