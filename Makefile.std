@@ -28,6 +28,7 @@
 ########################################################################
 #doc#	Makefile.std - Makefile included by every cpi app
 ########################################################################
+SHELL=bash
 DEBUG_OUT?=	:
 
 ifneq (,$(wildcard /boot/home/config/non-packaged))
