@@ -61,9 +61,12 @@ endif
 ifneq (,$(wildcard /cygdrive/c))
     WUSER?=Administrator
     WGROUP?=Administrators
-else
-    WUSER?=0
-    WGROUP?=0
+endif
+ifeq (,$(WUSER))
+    WUSER=0
+endif
+ifeq (,$(WGROUP))
+    WGROUP=0
 endif
 
 IUSER:=		$(shell id -u)
