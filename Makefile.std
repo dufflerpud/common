@@ -185,8 +185,8 @@ ifneq (,$(wildcard $(SRCDIR)/app.cgi $(PROJECTPUBLIC)/*))
 endif
 
 BUILT_SYS?=	$(BUILT_TOP_SYS)/$(BUILT_FOR)-$(BUILT_BY)
-BUILT_USER?=	$(BUILT_TOP_USER)/$(shell hostname).$(USER)
-BUILT_HOST?=	$(BUILT_TOP_HOST)/$(shell hostname)
+BUILT_USER?=	$(BUILT_TOP_USER)/$(shell uname -n).$(USER)
+BUILT_HOST?=	$(BUILT_TOP_HOST)/$(shell uname -n)
 BUILT_ALL?=	$(BUILT_TOP_ALL)
 LINKS?=		bin obj results doc
 
