@@ -193,10 +193,15 @@ my %has_clause_type;
 my $current_timeline = "base";
 
 use lib "/usr/local/lib/perl";
-use COMMON;
-$COMMON::PROG = $0;
-$COMMON::PROG =~ s+.*/++;
-$COMMON::PROG =~ s+\..*++;
+use cpi_time qw(at at_dur at_dur_add at_dur_string at_string);
+use cpi_trace qw(get_trace stack_trace);
+use cpi_file qw(fatal read_file);
+use cpi_cgi qw(CGIheader CGIreceive embed_css);
+use cpi_inlist qw(inlist);
+
+$cpi_vars::PROG = $0;
+$cpi_vars::PROG =~ s+.*/++;
+$cpi_vars::PROG =~ s+\..*++;
 
 #########################################################################
 #	Verify that the supplied pointer is correct type.		#
@@ -213,7 +218,7 @@ sub check_ref
 	: ref($p)." pointer" );
     if( $r ne "$txt pointer" )
         {
-	&COMMON::stack_trace("$r instead of $txt pointer");
+	&stack_trace("$r instead of $txt pointer");
 	exit(1);
 	}
     }
@@ -221,7 +226,7 @@ sub check_ref
 #########################################################################
 #	Returns true if item is in list.  Prettier than straight grep	#
 #########################################################################
-sub in_list
+sub inlist
     {
     my( $item, @lst ) = @_;
     return ( grep( $_ eq $item, @lst ) ? 1 : 0 );
@@ -482,7 +487,7 @@ sub add_to_name_table
 	    " modifier=",(!$modifier?"UNDEF":ref($modifier) ne ""?ref($modifier):"'$modifier'"),
 	    " value=",(!$value?"UNDEF":ref($value) ne ""?ref($value):"'$value'"),
 	    "\nStack trace\n\t",
-	    join("\n\t",&COMMON::get_trace()),
+	    join("\n\t",&get_trace()),
 	    "\n";
 	}
     #print "CMC Adding {$var,$modifier}=$value.\n";
@@ -495,7 +500,7 @@ sub add_to_name_table
 	{ $bookp->{vars}{$var}{$modifier} = $value; }
     else
         {
-	# &COMMON::fatal("Do not know how create '$modifier' value for '$var'.");
+	# &fatal("Do not know how create '$modifier' value for '$var'.");
 	}
     }
 
@@ -700,12 +705,12 @@ sub do_subs
 	my $res;
 	if( !defined( $piece ) )		{ }
 	elsif( defined($subs{$piece}) )		{ $res = $subs{$piece}; }
-	elsif( $piece !~ /^(.*?)\((.*)\)/ || !&in_list($1,@FUNCS) )
+	elsif( $piece !~ /^(.*?)\((.*)\)/ || !&inlist($1,@FUNCS) )
 	    					{ $res = $piece; }
 	elsif( ! ( @args = split(/,/,&do_subs($bookp,$2)) ) )
 	    					{ }
 	elsif($1 eq "METAUNITS")		{ $res = &METAUNITS(@args); }
-	elsif( &in_list($1,"UNITS","PUNITS","CHANGEUNITS","PCHANGEUNITS","METRICENGLISH") )
+	elsif( &inlist($1,"UNITS","PUNITS","CHANGEUNITS","PCHANGEUNITS","METRICENGLISH") )
 						{ $res = &anyunit($1,@args); }
 	elsif($1 eq "TIMELINE")			{ $res = &timeline_ref(@args); }
 	elsif($1 eq "UCFIRST")			{ $res = &UCFIRST(@args); }
@@ -916,9 +921,9 @@ sub fix_tree_entry
 	$my_ptr->{camera_id} = ++$cameraid;
 	}
 
-    elsif( &in_list( $clause_type, @TEXT_PRIMITIVES ) )
+    elsif( &inlist( $clause_type, @TEXT_PRIMITIVES ) )
 	{
-	if( &in_list( $clause_type, "footnote", "comment", "reference" ) )
+	if( &inlist( $clause_type, "footnote", "comment", "reference" ) )
 	    {
 	    $my_ptr->{$clause_type."_id"} = join(".",
 		$parent_ptr->{block_id},
@@ -1012,7 +1017,7 @@ sub generate_work_list
 		    last;
 		    }
 		}
-	    &COMMON::fatal( "Story '". $fromp->{story}. "' not available." )
+	    &fatal( "Story '". $fromp->{story}. "' not available." )
 	        if( ! $found_story );
 	    }
 	}
@@ -1234,21 +1239,21 @@ sub one_flow
 ##	Tries to handle nbit%3!=0 reasonably (e.g. 8 bit color)		#
 ##	but not well tested.						#
 ##########################################################################
-#my $COLOR_CHANNELS = 3;
-#my @unique_nbit_shifters;
-#my @unique_nbit_index;
+#my $cpi_unique_nbit_color::COLOR_CHANNELS = 3;
+#my @cpi_unique_nbit_color::unique_nbit_shifters;
+#my @cpi_unique_nbit_color::unique_nbit_index;
 #sub unique_nbit_color
 #    {
 #    my( $val, $nbit ) = @_;
 #    $nbit ||= 24;
-#    $val = $unique_nbit_index[$nbit]++ if( ! defined($val) );
-#    if( ! $unique_nbit_shifters[$nbit] )
+#    $val = $cpi_unique_nbit_color::unique_nbit_index[$nbit]++ if( ! defined($val) );
+#    if( ! $cpi_unique_nbit_color::unique_nbit_shifters[$nbit] )
 #        {
-#	my $minwidth = int( $nbit / $COLOR_CHANNELS );
-#	my $extra_bits = $nbit % $COLOR_CHANNELS;
+#	my $minwidth = int( $nbit / $cpi_unique_nbit_color::COLOR_CHANNELS );
+#	my $extra_bits = $nbit % $cpi_unique_nbit_color::COLOR_CHANNELS;
 #	my $chan;
 #	my @width;
-#	for( $chan=0; $chan<$COLOR_CHANNELS; $chan++ )
+#	for( $chan=0; $chan<$cpi_unique_nbit_color::COLOR_CHANNELS; $chan++ )
 #	    {
 #	    $width[$chan] = $minwidth + ($chan<$extra_bits?1:0);
 #	    }
@@ -1262,15 +1267,15 @@ sub one_flow
 #	my @offsets;
 #	for( my $i=0; $i<$nbit; $i++ )
 #	    {
-#	    push( @offsets, 1<<--$bitnum[ ++$chan%$COLOR_CHANNELS ] );
+#	    push( @offsets, 1<<--$bitnum[ ++$chan%$cpi_unique_nbit_color::COLOR_CHANNELS ] );
 #	    }
-#	$unique_nbit_shifters[$nbit] = \@offsets;
+#	$cpi_unique_nbit_color::unique_nbit_shifters[$nbit] = \@offsets;
 #	}
 #
 #    my $res = 0;
 #    for( my $ind=0; $val; $ind++ )
 #        {
-#	$res |= $unique_nbit_shifters[$nbit][$ind] if( $val & 1 );
+#	$res |= $cpi_unique_nbit_color::unique_nbit_shifters[$nbit][$ind] if( $val & 1 );
 #	$val >>= 1;
 #	}
 #    return $res;
@@ -1386,8 +1391,8 @@ sub print_eos_thing
 
     return if( $done_flag || $clause_type ne $l4clause_type );
     return if( $my_ptr && $my_ptr->{who} && $my_ptr->{who} eq "FAKE" );
-    return if( &in_list($clause_type,@TEXT_HELPERS) );
-    if( &in_list($clause_type,"trademark","glossary") )
+    return if( &inlist($clause_type,@TEXT_HELPERS) );
+    if( &inlist($clause_type,"trademark","glossary") )
         { return if( $seen_ref{ $my_ptr->{base} || &body_of($my_ptr) }++ ); }
 
     #print "CMC pet args $parent_ptr, $my_ptr, $clause_type.<br>\n";
@@ -1406,7 +1411,7 @@ sub print_eos_thing
 	    {
 	    my $plural = ucfirst( $clause_type ) . "s";
 	    my $printable = ucfirst($clause_type);
-	    $printable .= "s" if( ! &in_list($clause_type,"glossary") );
+	    $printable .= "s" if( ! &inlist($clause_type,"glossary") );
 	    &sub_buf(
 		&new_page( &alink("B".$clause_type,"#T".$clause_type,
 		    $printable ) ),
@@ -1428,7 +1433,7 @@ sub print_eos_thing
 #		{ $num_headings=&print_headings("Number","Comment"); }
 	    elsif( $clause_type eq "reference" )
 		{ $num_headings=&print_headings("Number","Description","URL" ); }
-	    elsif( &in_list($clause_type,"footnote","comment") )
+	    elsif( &inlist($clause_type,"footnote","comment") )
 		{ $num_headings=&print_headings("Number",ucfirst($clause_type)); }
 	    elsif( $clause_type eq "illustration" )
 		{ $num_headings=&print_headings("Title","Contains"); }
@@ -1445,9 +1450,9 @@ sub print_eos_thing
 	$need_chapter_header = 0;
 	}
 
-    $_= &in_list( $clause_type, "footnote", "comment", "reference", "camera" )
+    $_= &inlist( $clause_type, "footnote", "comment", "reference", "camera" )
 	    ? $my_ptr->{$clause_type."_id"}
-	: &in_list( $clause_type, "illustration" ) && $my_ptr->{alt}
+	: &inlist( $clause_type, "illustration" ) && $my_ptr->{alt}
 	    ? $my_ptr->{alt}
 	: $my_ptr->{base}
 	    ? $my_ptr->{base}
@@ -1456,11 +1461,11 @@ sub print_eos_thing
     &sub_buf( "<tr $COLFLAG='", ($chapter_ptr->{color}||"pink"), "'>",
 	"<td valign=top>", &link_to_body( $my_ptr, $_ ), "</td>" );
 
-    if( &in_list( $clause_type, "thank", "trademark" ) )
+    if( &inlist( $clause_type, "thank", "trademark" ) )
 	{ &sub_buf( "<td>", $my_ptr->{who}, "</td>" ); }
     elsif( $clause_type eq "glossary" )
         { &sub_buf( "<td>", $my_ptr->{meaning}, "</td>" ); }
-    elsif( &in_list( $clause_type, "footnote", "comment" ) )
+    elsif( &inlist( $clause_type, "footnote", "comment" ) )
 	{ &sub_buf( "<td>", &fix_html( &body_of($my_ptr), 1 ), "</td>" ); }
     elsif( $clause_type eq "reference" )
 	{
@@ -1656,7 +1661,7 @@ sub print_obj
 	&print_all_obj( $text_flag, $ptr, $lvl );
 	$by_next = "";
 	}
-    elsif( &in_list( $clause_type, "line", "action" ) )
+    elsif( &inlist( $clause_type, "line", "action" ) )
 	{
 	if( $by_next ne $by_last )
 	    {
@@ -1708,7 +1713,7 @@ sub print_obj
 	&print_all_obj( $text_flag, $ptr, $lvl )
 	    if( $text_flag );
 	}
-    elsif( &in_list( $clause_type, "footnote", "comment", "reference" ) )
+    elsif( &inlist( $clause_type, "footnote", "comment", "reference" ) )
 	{
 	if( $text_flag && $SHOW{"${clause_type}s"} )
 	    {
@@ -1720,7 +1725,7 @@ sub print_obj
 		"</sup>" );
 	    }
 	}
-    elsif( &in_list($clause_type,"offset") )
+    elsif( &inlist($clause_type,"offset") )
         {
 	if( $text_flag )
 	    {
@@ -1764,7 +1769,7 @@ sub print_obj
 	    &sub_buf("</table></center>\n");
 	    }
 	}
-    elsif( &in_list($clause_type,"sender","date","signature") )
+    elsif( &inlist($clause_type,"sender","date","signature") )
         {
 	if( $text_flag )
 	    {
@@ -1773,7 +1778,7 @@ sub print_obj
 	    &sub_buf("<br>&nbsp</td></tr>\n");
 	    }
 	}
-    elsif( &in_list($clause_type,"receiver","salutation","contents","cc") )
+    elsif( &inlist($clause_type,"receiver","salutation","contents","cc") )
         {
 	if( $text_flag )
 	    {
@@ -1782,7 +1787,7 @@ sub print_obj
 	    &sub_buf("<br>&nbsp;</td></tr>\n");
 	    }
 	}
-    elsif( &in_list($clause_type,"trademark","glossary") )
+    elsif( &inlist($clause_type,"trademark","glossary") )
         {
 	if( $text_flag )
 	    {
@@ -1932,7 +1937,7 @@ sub print_copyright
 	&follow_chain("Unknown","ISBN"),
 	"<br><br><br><br>\n",
 	"<font size=-2>Generated ",
-	    ( $COMMON::FORM{GENERATED} || `date +'%m/%d/%Y %H:%M'`),"</font>",
+	    ( $cpi_vars::FORM{GENERATED} || `date +'%m/%d/%Y %H:%M'`),"</font>",
 	"</center>\n" );
     }
 
@@ -1970,7 +1975,7 @@ sub print_simple_page
 #########################################################################
 sub print_css
     {
-    print &COMMON::embed_css( @_ );
+    print &embed_css( @_ );
     }
 
 #########################################################################
@@ -1994,7 +1999,7 @@ sub do_a_header
 	    }
 
 	$fname = "$ENV{PWD}/$fname" if( $fname !~ m:^/: );
-	&COMMON::fatal("do_a_header($fname) failed as file name is in wrong format.")
+	&fatal("do_a_header($fname) failed as file name is in wrong format.")
 	    if( $fname !~ m:^(.*)/([^/]*)/([^/]*)\.(cgi|pl)$: );
 	$parent_dir = $1;
 	$story_fname = $2;
@@ -2032,7 +2037,7 @@ sub follow_chain
 	    elsif( $thing_type eq "ARRAY" )
 		{ $thing = $thing->[ $ind ]; }
 	    else
-	        { &COMMON::fatal( "Indexed to non-reference." ); };
+	        { &fatal( "Indexed to non-reference." ); };
 	    }
 	#print "Returning $thing.\n" if( defined($thing) );
 	return $thing if( defined($thing) );
@@ -2079,7 +2084,7 @@ sub find_ancestor_that_is
 sub include_files
     {
     my( $fname ) = @_;
-    return split(/(<include\s+file\s*=\s*\".*?\"\s*\/>)/s, &COMMON::read_file($fname));
+    return split(/(<include\s+file\s*=\s*\".*?\"\s*\/>)/s, &read_file($fname));
     }
 
 
@@ -2107,10 +2112,10 @@ sub debug_timeline
 	    "  basedon=", ( $timelines{$t}{basedon} || "UNDEF" ),
 	    "  attime=",
 		    ( ! defined( $timelines{$t}{attime} ) ? "UNDEF"
-		    :   &COMMON::at_string( $COMMON::ANYTIME_FMT, $timelines{$t}{attime}) ),
+		    :   &at_string( $cpi_time::ANYTIME_FMT, $timelines{$t}{attime}) ),
 	    "  offset=",
 		    ( ! defined( $timelines{$t}{offset} ) ? "UNDEF"
-		    :   &COMMON::at_dur_string($timelines{$t}{offset}) );
+		    :   &at_dur_string($timelines{$t}{offset}) );
 	}
     print ": ", ($msg||("Bad message at $ln")), ".\n";
     }
@@ -2141,7 +2146,7 @@ sub parse_time_string
 	if( $time_string =~ /^[\-\d :]*$/ )
 	    {
 	    %{$timelines{$current_timeline}} =
-	        ( basedon=>undef, offset=>undef, attime=>&COMMON::at($time_string) );
+	        ( basedon=>undef, offset=>undef, attime=>&at($time_string) );
 	    #&debug_timeline(__LINE__,"DIRECT");
 	    }
 	else
@@ -2161,7 +2166,7 @@ sub parse_time_string
 	    elsif( $tok eq "now" )
 		{
 		%{$timelines{$current_timeline}}
-		    = (basedon=>undef,offset=>undef,attime=>&COMMON::at());
+		    = (basedon=>undef,offset=>undef,attime=>&at());
 		#&debug_timeline(__LINE__,"Settimg to now.");
 		}
 	    elsif($timelines{$tok})
@@ -2173,7 +2178,7 @@ sub parse_time_string
 	    elsif( $tok =~ /^[A-Z_a-z]*$/ )
 		{
 		%{$timelines{$current_timeline}}
-		    = (basedon=>$tok,attime=>undef,offset=>&COMMON::at_dur());
+		    = (basedon=>$tok,attime=>undef,offset=>&at_dur());
 		#&debug_timeline(__LINE__,"Based on unknown timeline.");
 		}
 	    else
@@ -2195,15 +2200,15 @@ sub parse_time_string
 		&debug_timeline(__LINE__,"Pre summing offsets.");
 		$timelines{$current_timeline}{offset} =
 		    ( $ooffset
-		    ? &COMMON::at_dur( $ooffset, join("",@toks) )
-		    : &COMMON::at_dur( join("",@toks) ) );
+		    ? &at_dur( $ooffset, join("",@toks) )
+		    : &at_dur( join("",@toks) ) );
 		&debug_timeline(__LINE__,"Post summing offsets.");
 		}
 	    if( $timelines{$current_timeline}{attime}
 	        && $timelines{$current_timeline}{offset} )
 	        {
 		$timelines{$current_timeline}{attime} =
-		    &COMMON::at_dur_add( 
+		    &at_dur_add( 
 			$timelines{$current_timeline}{attime},
 			$timelines{$current_timeline}{offset} );
 		$timelines{$current_timeline}{offset} = undef;
@@ -2226,14 +2231,14 @@ sub show_timeline
 
     my @ret;
     push( @ret,
-	&COMMON::at_string( $fmt, $timelines{$timeline}{attime}) )
+	&at_string( $fmt, $timelines{$timeline}{attime}) )
 	if( $timelines{$timeline}{attime} );
     if( my $basedon = $timelines{$timeline}{basedon} )
 	{
         $basedon =~ s/_/ /g;
 	push( @ret, $basedon );
 	}
-    push( @ret, &COMMON::at_dur_string($timelines{$timeline}{offset}) )
+    push( @ret, &at_dur_string($timelines{$timeline}{offset}) )
         if( $timelines{$timeline}{offset} );
     return join("+",@ret);
     }
@@ -2363,7 +2368,7 @@ sub do_one_file
 #########################################################################
 sub usage
     {
-    &COMMON::fatal( "Usage:  $COMMON::PROG something" );
+    &fatal( "Usage:  $cpi_vars::PROG something" );
     }
 
 #########################################################################
@@ -2372,15 +2377,15 @@ sub usage
 
 if( $IS_CGI )
     {
-    &COMMON::CGIheader();
-    &COMMON::CGIreceive();
+    &CGIheader();
+    &CGIreceive();
 
-    #grep( $SHOW{$_}=0, @SHOWS ) if( $COMMON::FORM{"shownone"} );
-    #grep( $SHOW{$_}=1, @SHOWS ) if( $COMMON::FORM{"showall"} );
+    #grep( $SHOW{$_}=0, @SHOWS ) if( $cpi_vars::FORM{"shownone"} );
+    #grep( $SHOW{$_}=1, @SHOWS ) if( $cpi_vars::FORM{"showall"} );
 
-    if( $COMMON::FORM{show} )
+    if( $cpi_vars::FORM{show} )
         {
-	foreach my $show ( split( /,/, $COMMON::FORM{show} ) )
+	foreach my $show ( split( /,/, $cpi_vars::FORM{show} ) )
 	    {
 	    if( $SHOW_LISTS{$show} )
 	        {
@@ -2398,14 +2403,14 @@ if( $IS_CGI )
 
     foreach my $svar ( @SHOWS )
         {
-	if( defined( $COMMON::FORM{"show$svar"} ) )
+	if( defined( $cpi_vars::FORM{"show$svar"} ) )
 	    {
 	    if( $SHOW_LISTS{$svar} )
-	        { grep( $SHOW{$_}=$COMMON::FORM{"show$svar"}, @{$SHOW_LISTS{$svar}} ); }
+	        { grep( $SHOW{$_}=$cpi_vars::FORM{"show$svar"}, @{$SHOW_LISTS{$svar}} ); }
 	    else
-		{ $SHOW{$svar} = $COMMON::FORM{"show$svar"}; }
+		{ $SHOW{$svar} = $cpi_vars::FORM{"show$svar"}; }
 	    }
-	elsif( defined( $COMMON::FORM{"noshow$svar"} ) )
+	elsif( defined( $cpi_vars::FORM{"noshow$svar"} ) )
 	    {
 	    if( $SHOW_LISTS{$svar} )
 	        { grep( $SHOW{$_}=0, @{$SHOW_LISTS{$svar}} ); }
