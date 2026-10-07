@@ -47,6 +47,7 @@ PROJECTUC=	$(shell echo $(PROJECT) | perl -e 'print ucfirst(<>)')
 PROJECTDIR?=	$(PROJECTSDIR)/$(PROJECT)
 PROJECTDBDIR?=	$(PROJECTDIR)/db
 PROJECTPUBLIC?=	$(PROJECTDIR)/public
+PROJECTMAN?=	$(PROJECTDIR)/man
 TEST_URL?=	http://localhost$(WEBOFFSET)/$(PROJECT)
 BUPDIR?=	$$HOME/bups/$(PROJECT)
 NOW?=		$(shell date +%Y-%m-%d:%H:%M)
@@ -98,6 +99,7 @@ endif
 SYSTEMBIN?=	$(USRLOCAL)/bin
 SYSTEMLIB?=	$(USRLOCAL)/lib
 SYSTEMETC?=	$(USRLOCAL)/etc
+SYSTEMMAN?=	$(USRLOCAL)/man
 
 ifneq (,$(wildcard /cygdrive/c))
     SYSTEMUSER:=Administrator
@@ -284,6 +286,7 @@ std_vars:
 		@echo "	BINS			$(BINS)"
 		@echo "	SYSTEMBIN		$(SYSTEMBIN)"
 		@echo "	SYSTEMLIB		$(SYSTEMLIB)"
+		@echo "	PROJECTMAN		$(PROJECTMAN)"
 ifneq (,$(WEBOFFSET))
 		@echo "	WEBOFFSET		$(WEBOFFSET)"
 endif
@@ -366,8 +369,14 @@ std_install:
 ifneq (,$(PROGRAMS))
 		@set -x; $(foreach f,$(PROGRAMS), $(GNUINSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) 2>/dev/null || $(SUDO) $(GNUINSTALL) $(or $(INSTALL_$(f)),$(INSTALL_DEFAULTS)) $(BINDIR)/$(f) $(or $(INSTALL_FILE_$(f)),$(SYSTEMBIN)/$(f)) ;)
 endif
+ifeq (,$(wildcard $(PROJECTMAN)/*))
+		@echo No man pages to install
+else
+		$(TAR) cCf $(PROJECTMAN) - . | $(TAR) xCf $(SYSTEMMAN) -
+		#$(GNUINSTALL) -D $(PROJECTMAN)/* $(SYSTEMMAN)
+endif
 ifneq (,$(WWWDIR))
-		[ ! -h $(WWWDIR) ] || $(RM) -f $(WWWDIR)
+		echo "Skipping:  [ ! -h $(WWWDIR) ] || $(RM) -f $(WWWDIR)"
 		$(MKDIR) -p $(WWWDIR)
 ifneq (,$(PROGRAMCGI))
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
