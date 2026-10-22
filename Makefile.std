@@ -381,23 +381,27 @@ ifneq (,$(WWWDIR))
 ifneq (,$(PROGRAMCGI))
 		$(SED_MAP_DIRS) < $(SRCDIR)/app.cgi > $(PROGRAMCGI)
 		$(CHMOD) 755 $(WWWDIR) $(PROGRAMCGI)
-		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -group $(PROJECT)_user -full "$(PROJECTUC) user"
-		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
-		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user "$(PROJECTUC) user" -password "$(BAD_PASSWORD)" \
-		    -groups +$(PROJECT)_user
-		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user "$(PROJECTUC) admin" -password "$(BAD_PASSWORD)" \
-		    -groups +$(PROJECT)_user+$(PROJECT)_admin
-		$(CPI_USER) -database $(ACCOUNTSDB) \
-		    -merge -user $(ADMINISTRATOR) \
-		    -groups +$(PROJECT)_user+$(PROJECT)_admin
-		$(GNUINSTALL) -d -m 0777 $(PROJECTDBDIR)
+ifeq (,$(NO_LOGIN))
+		    $(CPI_USER) -database $(ACCOUNTSDB) \
+			-group $(PROJECT)_user -full "$(PROJECTUC) user"
+		    $(CPI_USER) -database $(ACCOUNTSDB) \
+			-group $(PROJECT)_admin -full "$(PROJECTUC) administrator"
+		    $(CPI_USER) -database $(ACCOUNTSDB) \
+			-merge -user "$(PROJECTUC) user" -password "$(BAD_PASSWORD)" \
+			-groups +$(PROJECT)_user
+		    $(CPI_USER) -database $(ACCOUNTSDB) \
+			-merge -user "$(PROJECTUC) admin" -password "$(BAD_PASSWORD)" \
+			-groups +$(PROJECT)_user+$(PROJECT)_admin
+		    $(CPI_USER) -database $(ACCOUNTSDB) \
+			-merge -user $(ADMINISTRATOR) \
+			-groups +$(PROJECT)_user+$(PROJECT)_admin
+endif
+ifeq (,$(NO_DATABASE))
+		    $(GNUINSTALL) -d -m 0777 $(PROJECTDBDIR)
 ifeq (,$(wildcard $(PROJECTDBDIR)/app.$(DBEXT)))
-		[ -f $(PROJECTDBDIR)/app.$(DBEXT) ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.$(DBEXT)
-		[ ! -f $(PROJECTDBDIR)/app.$(DBEXT) ] || $(CHMOD) 0666 $(PROJECTDBDIR)/app.$(DBEXT)
+		    [ -f $(PROJECTDBDIR)/app.$(DBEXT) ] || $(PROGRAMCGI) -initdb $(PROJECTDBDIR)/app.$(DBEXT)
+		    [ ! -f $(PROJECTDBDIR)/app.$(DBEXT) ] || $(CHMOD) 0666 $(PROJECTDBDIR)/app.$(DBEXT)
+endif
 		@$(RM) -f /tmp/stub.po
 endif
 endif
